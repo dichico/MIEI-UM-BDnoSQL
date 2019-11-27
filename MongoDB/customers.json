@@ -1,0 +1,32 @@
+[
+    {
+        "Customer Id": ObjectId(),    
+        "First Name": String,
+        "Last Name": String,
+        "Email": String,
+        "Address" : String,
+        "City" : String,
+        "Country" : String,
+        "District" : String,
+        "Postal Code": String,
+        "Phone": Number,
+        "Last Update": Date(), 
+        "Rentals" :[
+            {
+                "Id": Number,
+                "Rental Date": Date(),
+                "Return Date": Date(),
+                "Film Title": String,
+                "Film Id": Number,
+                "Payments": [
+                    {
+                        "Id": Number,
+                        "Amount": Float,
+                        "Date": Date() 
+                    }
+                ],
+                "Staff Id": Number
+            }
+        ]
+    }
+]

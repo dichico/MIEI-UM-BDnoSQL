@@ -1,0 +1,24 @@
+[
+    {
+        "Film Id": ObjectId(),
+        "Title": String,
+        "Description": String,
+        "Release Year": Date(),
+        "Original Language": String,
+        "Language": String,
+        "Rental Duration": Number,
+        "Rental Rate": Number,
+        "Rating": String,
+        "Length": Number,
+        "Replacement Cost": Number,
+        "Special Features": String,
+        "Category": String,
+        "Actors":[
+            {
+                "Id": ObjectId(),
+                "First Name": String,
+                "Last Name": String,
+            }
+        ]
+    }
+]
