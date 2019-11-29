@@ -113,7 +113,7 @@ CREATE TABLE customer (
 );
 
 -- Criação do índice pelo último nome do customer.
-CREATE INDEX last_name_I ON customer(last_name);
+CREATE INDEX customer_last_name_I ON customer(last_name);
 
 -- Criação do "auto-increment" do customer através da sequência e do seu trigger.
 CREATE SEQUENCE customer_sq
@@ -123,7 +123,7 @@ CREATE OR REPLACE TRIGGER customer_bi_trigger
 BEFORE INSERT ON customer FOR EACH ROW
 BEGIN
     IF (:NEW.customer_id IS NULL) THEN
-        SELECT customer_sequence.nextval INTO :NEW.customer_id
+        SELECT customer_sq.nextval INTO :NEW.customer_id
         FROM DUAL;
     END IF;
     -- criação dos timestamps.
@@ -151,7 +151,7 @@ CREATE TABLE actor (
 );
 
 -- Criação do index adicional pelo último nome do actor.
-CREATE INDEX last_name_I ON actor(last_name);
+CREATE INDEX actor_last_name_I ON actor(last_name);
 
 -- Criação do "auto-increment" do actor através da sequência e do seu trigger.
 CREATE SEQUENCE actor_sq
@@ -337,7 +337,8 @@ CREATE TABLE inventory (
 );
 
 -- Criação do "auto-increment" do category através da sequência e do seu trigger.
-CREATE SEQUENCE inventory_sq;
+CREATE SEQUENCE inventory_sq
+START WITH 4582;
 
 CREATE OR REPLACE TRIGGER inventory_bi_trigger
 BEFORE INSERT ON inventory FOR EACH ROW
@@ -374,7 +375,8 @@ CREATE TABLE staff (
 );
 
 -- Criação do "auto-increment" do category através da sequência e do seu trigger.
-CREATE SEQUENCE staff_sq;
+CREATE SEQUENCE staff_sq
+START WITH 2;
 
 CREATE OR REPLACE TRIGGER staff_bi_trigger
 BEFORE INSERT ON staff FOR EACH ROW
@@ -386,10 +388,121 @@ BEGIN
   :NEW.last_update:=current_date;
 END;
 
--- Criação do trigger para atualizar o timestamp caso exista um update ou insert inicial.
+-- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER staff_bu_trigger
 BEFORE UPDATE ON staff FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
+
+-- Estrutura da tabela store
+CREATE TABLE store (
+    store_id INT NOT NULL,
+    manager_staff_id SMALLINT NOT NULL,
+    address_id INT NOT NULL,
+    last_update DATE NOT NULL,
+    CONSTRAINT store_PK PRIMARY KEY  (store_id),
+    CONSTRAINT store_staff_FK FOREIGN KEY (manager_staff_id) REFERENCES staff (staff_id) ,
+    CONSTRAINT store_address_FK FOREIGN KEY (address_id) REFERENCES address (address_id)
+);
+
+-- Criação do "auto-increment" do category através da sequência e do seu trigger.
+CREATE SEQUENCE store_sq
+START WITH 2;
+
+CREATE OR REPLACE TRIGGER store_bi_trigger
+BEFORE INSERT ON store FOR EACH ROW
+BEGIN
+ IF (:NEW.store_id IS NULL) THEN
+   SELECT store_sq.nextval INTO :NEW.store_id
+    FROM DUAL;
+  END IF;
+ :NEW.last_update:=current_date;
+END;
+
+-- Criação do trigger para atualizar o timestamp caso exista um update.
+CREATE OR REPLACE TRIGGER store_bu_trigger
+BEFORE UPDATE ON store FOR EACH ROW
+BEGIN
+  :NEW.last_update:=current_date;
+END;
+
+-- Estrutura da tabela payment
+CREATE TABLE payment (
+    payment_id int NOT NULL,
+    customer_id INT  NOT NULL,
+    staff_id SMALLINT NOT NULL,
+    rental_id INT DEFAULT NULL,
+    amount DECIMAL(5,2) NOT NULL,
+    payment_date DATE NOT NULL,
+    last_update DATE NOT NULL,
+    CONSTRAINT payment_PK PRIMARY KEY  (payment_id),
+    CONSTRAINT payment_customer_FK FOREIGN KEY (customer_id) REFERENCES customer (customer_id) ,
+    CONSTRAINT payment_staff_FK FOREIGN KEY (staff_id) REFERENCES staff (staff_id)
+);
+
+-- Criação do "auto-increment" do category através da sequência e do seu trigger.
+CREATE SEQUENCE payment_sq
+START WITH 16050;
+
+CREATE OR REPLACE TRIGGER payment_bi_trigger
+BEFORE INSERT ON payment FOR EACH ROW
+BEGIN
+ IF (:NEW.payment_id IS NULL) THEN
+   SELECT payment_sq.nextval INTO :NEW.payment_id
+    FROM DUAL;
+  END IF;
+ :NEW.last_update:=current_date;
+END;
+
+-- Criação do trigger para atualizar o timestamp caso exista um update.
+CREATE OR REPLACE TRIGGER payment_bu_trigger
+BEFORE UPDATE ON payment FOR EACH ROW
+BEGIN
+  :NEW.last_update:=current_date;
+END;
+
+CREATE TABLE rental (
+    rental_id INT NOT NULL,
+    rental_date DATE NOT NULL,
+    inventory_id INT  NOT NULL,
+    customer_id INT  NOT NULL,
+    return_date DATE DEFAULT NULL,
+    staff_id SMALLINT  NOT NULL,
+    last_update DATE NOT NULL,
+    CONSTRAINT rental_PK PRIMARY KEY (rental_id),
+    CONSTRAINT rental_staff_FK FOREIGN KEY (staff_id) REFERENCES staff (staff_id) ,
+    CONSTRAINT rental_inventory_FK FOREIGN KEY (inventory_id) REFERENCES inventory (inventory_id) ,
+    CONSTRAINT rental_customer_FK FOREIGN KEY (customer_id) REFERENCES customer (customer_id)
+);
+
+-- Criação do indíce adicional presente no rental.
+CREATE UNIQUE INDEX   rental_I  ON rental (rental_date,inventory_id,customer_id);
+
+-- Criação do "auto-increment" do category através da sequência e do seu trigger.
+CREATE SEQUENCE rental_sq
+START WITH 16050;
+
+CREATE OR REPLACE TRIGGER rental_bi_trigger
+BEFORE INSERT ON rental FOR EACH ROW
+BEGIN
+ IF (:NEW.rental_id IS NULL) THEN
+     SELECT rental_sq.nextval INTO :NEW.rental_id
+     FROM DUAL;
+  END IF;
+ :NEW.last_update:=current_date;
+END;
+
+-- Criação do trigger para atualizar o timestamp caso exista um update.
+CREATE OR REPLACE TRIGGER rental_bu_trigger
+BEFORE UPDATE ON rental FOR EACH ROW
+BEGIN
+  :NEW.last_update:=current_date;
+END;
+
+-- Colocar as chaves estrangeiras da tabela store e payment criadas agora.
+ALTER TABLE customer ADD CONSTRAINT fk_customer_store FOREIGN KEY (store_id) REFERENCES store (store_id);
+ALTER TABLE inventory ADD CONSTRAINT fk_inventory_store FOREIGN KEY (store_id) REFERENCES store (store_id);
+ALTER TABLE staff ADD CONSTRAINT fk_staff_store FOREIGN KEY (store_id) REFERENCES store (store_id);
+ALTER TABLE payment ADD CONSTRAINT fk_payment_rental FOREIGN KEY (rental_id) REFERENCES rental (rental_id) ON DELETE SET NULL;
 
