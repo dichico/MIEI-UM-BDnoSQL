@@ -533,3 +533,270 @@ ALTER TABLE inventory ADD CONSTRAINT fk_inventory_store FOREIGN KEY (store_id) R
 ALTER TABLE staff ADD CONSTRAINT fk_staff_store FOREIGN KEY (store_id) REFERENCES store (store_id);
 ALTER TABLE payment ADD CONSTRAINT fk_payment_rental FOREIGN KEY (rental_id) REFERENCES rental (rental_id) ON DELETE SET NULL;
 
+----------- Criação das views ------------
+
+-- View film_list
+CREATE OR REPLACE VIEW film_list
+AS
+SELECT film.film_id AS FID,
+       film.title AS title,
+       film.description AS description,
+       category.name AS category,
+       film.rental_rate AS price,
+       film.length AS length,
+       film.rating AS rating,
+       actor.first_name||' '||actor.last_name AS actors
+FROM category
+    LEFT JOIN film_category ON category.category_id = film_category.category_id
+    LEFT JOIN film ON film_category.film_id = film.film_id
+    JOIN film_actor ON film.film_id = film_actor.film_id
+    JOIN actor ON film_actor.actor_id = actor.actor_id;
+
+-- View customer_list
+CREATE OR REPLACE VIEW customer_list
+AS
+SELECT cu.customer_id                     AS ID,
+       cu.first_name||' '||cu.last_name   AS name,
+       a.address                          AS address,
+       a.postal_code                      AS zip_code,
+       a.phone                            AS phone,
+       city.city                          AS city,
+       country.country                    AS country,
+       DECODE(cu.active, 1, 'active', '') AS notes, -- usado o decode para fazer o equivalente ao if em mySQL
+       cu.store_id                        AS SID
+FROM customer cu
+    JOIN address a ON cu.address_id = a.address_id
+    JOIN city ON a.city_id = city.city_id
+    JOIN country ON city.country_id = country.country_id;
+
+-- View staff_list
+
+CREATE OR REPLACE VIEW staff_list
+AS
+SELECT s.staff_id AS ID,
+       s.first_name || ' ' || s.last_name AS name,
+       a.address AS address,
+       a.postal_code AS zip_code,
+       a.phone AS phone,
+       city.city AS city,
+       country.country AS country,
+       s.store_id AS SID
+FROM staff s
+    JOIN address a ON s.address_id = a.address_id
+    JOIN city ON a.city_id = city.city_id
+    JOIN country ON city.country_id = country.country_id;
+
+-- View sales_by_store
+
+CREATE OR REPLACE VIEW sales_by_store
+AS
+SELECT s.store_id,
+       c.city||','||cy.country AS store,
+       m.first_name||' '||m.last_name AS manager,
+       SUM(p.amount) AS total_sales
+FROM payment p
+    INNER JOIN rental r ON p.rental_id = r.rental_id
+    INNER JOIN inventory i ON r.inventory_id = i.inventory_id
+    INNER JOIN store s ON i.store_id = s.store_id
+    INNER JOIN address a ON s.address_id = a.address_id
+    INNER JOIN city c ON a.city_id = c.city_id
+    INNER JOIN country cy ON c.country_id = cy.country_id
+    INNER JOIN staff m ON s.manager_staff_id = m.staff_id
+GROUP BY
+    s.store_id,
+    c.city||','||cy.country,
+    m.first_name||' '||m.last_name;
+
+-- View sales_by_film_category
+
+CREATE OR REPLACE VIEW sales_by_film_category
+AS
+SELECT
+    c.name AS category,
+    SUM(p.amount) AS total_sales
+FROM payment p
+    INNER JOIN rental r ON p.rental_id = r.rental_id
+    INNER JOIN inventory i ON r.inventory_id = i.inventory_id
+    INNER JOIN film f ON i.film_id = f.film_id
+    INNER JOIN film_category fc ON f.film_id = fc.film_id
+    INNER JOIN category c ON fc.category_id = c.category_id
+GROUP BY c.name
+ORDER BY total_sales DESC;
+
+-------------------- Procedures e functions --------------------
+
+-- Function inventory_in_stock
+CREATE OR REPLACE FUNCTION inventory_in_stock(p_inventory_id IN int) RETURN INT
+IS
+    v_rentals INT;
+    v_out     INT;
+BEGIN
+
+    -- AN ITEM IS IN-STOCK IF THERE ARE EITHER NO ROWS IN THE rental TABLE FOR THE ITEM OR ALL ROWS HAVE return_date POPULATED
+
+    SELECT COUNT(*) INTO v_rentals
+    FROM rental
+    WHERE inventory_id = p_inventory_id;
+
+    IF v_rentals = 0 THEN
+      RETURN 1;
+    END IF;
+
+    SELECT COUNT(rental_id) INTO v_out
+    FROM inventory LEFT JOIN rental ON inventory.inventory_id = rental.inventory_id
+    WHERE inventory.inventory_id = p_inventory_id
+    AND rental.return_date IS NULL;
+
+    IF v_out > 0 THEN
+      RETURN 0;
+    ELSE
+      RETURN 1;
+    END IF;
+END;
+
+-- Function get_customer_balance ??
+/*CREATE OR REPLACE FUNCTION get_customer_balance(p_customer_id IN int, p_effective_date IN date)
+RETURN DECIMAL
+IS
+    v_rentfees DECIMAL(5,2);
+    v_overfees INTEGER;
+    v_payments DECIMAL(5,2);
+BEGIN
+
+SELECT NVL(SUM(film.rental_rate),0) INTO v_rentfees
+    FROM film
+    INNER JOIN inventory i on film.film_id = i.film_id
+    INNER JOIN rental r on i.inventory_id = r.inventory_id
+    WHERE r.rental_date <= p_effective_date AND r.customer_id = p_customer_id;
+
+  SELECT NVL(SUM(
+        CASE WHEN ((extract('day', r.return_date) - extract('day', r.rental_date)) > f.rental_duration)
+        THEN ((extract('day', r.return_date) - extract('day', r.rental_date)) - f.rental_duration)
+        ELSE 0 END
+        ),0) INTO v_overfees
+    FROM film f
+    INNER JOIN inventory i on f.film_id = i.film_id
+    INNER JOIN rental r on i.inventory_id = r.inventory_id
+    WHERE r.rental_date <= p_effective_date AND r.customer_id = p_customer_id;
+
+
+  SELECT NVL(SUM(payment.amount),0) INTO v_payments
+    FROM payment
+    WHERE payment.payment_date <= p_effective_date
+    AND payment.customer_id = p_customer_id;
+
+  RETURN v_rentfees + v_overfees - v_payments;
+END;*/
+
+-- Function inventory_held_by_customer
+CREATE FUNCTION inventory_held_by_customer(p_inventory_id IN int) RETURN INT
+IS
+    v_customer_id INT;
+BEGIN
+    SELECT customer_id INTO v_customer_id
+    FROM rental
+    WHERE return_date IS NULL
+    AND inventory_id = p_inventory_id;
+
+    RETURN v_customer_id;
+END;
+
+-- Procedure film_in_stock
+CREATE OR REPLACE PROCEDURE film_in_stock(p_film_id IN int, p_store_id IN int, p_film_count OUT int)
+IS
+
+BEGIN
+     SELECT COUNT(inventory_id) INTO p_film_count
+     FROM inventory
+     WHERE film_id = p_film_id
+     AND store_id = p_store_id
+     AND inventory_in_stock(inventory_id) = 1;
+END;
+
+-- Procedure film_not_in_stock
+CREATE OR REPLACE PROCEDURE film_not_in_stock(p_film_id IN int, p_store_id IN int, p_film_count OUT int)
+IS
+
+BEGIN
+     SELECT COUNT(inventory_id) INTO p_film_count
+     FROM inventory
+     WHERE film_id = p_film_id
+     AND store_id = p_store_id
+     AND inventory_in_stock(inventory_id) = 0;
+END;
+
+
+
+
+
+-- Procedure rewards_report ??
+/*
+create global temporary table tmpCustomer (customer_id INTEGER NOT NULL PRIMARY KEY)
+on commit delete rows;
+CREATE PROCEDURE rewards_report(
+    min_monthly_purchases IN INT, min_dollar_amount_purchased IN DECIMAL(10,2), count_rewardees OUT INT
+)
+IS
+    last_month_start DATE;
+    last_month_end DATE;
+    exit EXCEPTION;
+    test INT;
+BEGIN
+    */
+/* Some sanity checks... *//*
+
+    IF min_monthly_purchases = 0 THEN
+        RAISE exit;
+    END IF;
+    IF min_dollar_amount_purchased = 0.00 THEN
+        raise exit;
+    END IF;
+
+    */
+/* Determine start and end time periods *//*
+
+    */
+/*SET last_month_start = DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH);
+    SET last_month_start = STR_TO_DATE(CONCAT(YEAR(last_month_start),'-',MONTH(last_month_start),'-01'),'%Y-%m-%d');
+    SET last_month_end = LAST_DAY(last_month_start);*//*
+
+
+    */
+/*
+        Create a temporary storage area for
+        Customer IDs.
+    *//*
+
+
+    */
+/*
+        Find all customers meeting the
+        monthly purchase requirements
+    *//*
+
+    INSERT INTO tmpCustomer (customer_id)
+    SELECT p.customer_id
+    FROM payment p
+    WHERE extract('month', p.payment_date) BETWEEN extract('month', last_month_start) AND extract('month',last_month_end)
+    GROUP BY customer_id
+    HAVING SUM(p.amount) > min_dollar_amount_purchased
+    AND COUNT(customer_id) > min_monthly_purchases;
+
+    */
+/* Populate OUT parameter with count of found customers *//*
+
+    SELECT COUNT(*) FROM tmpCustomer INTO test;
+
+    */
+/*
+        Output ALL customer information of matching rewardees.
+        Customize output as needed.
+    *//*
+
+    SELECT c.*
+    FROM tmpCustomer t
+    INNER JOIN customer c ON t.customer_id = c.customer_id;
+
+EXCEPTION
+    WHEN exit THEN null;
+END;*/
