@@ -9,19 +9,21 @@ var con = mysql.createConnection({
 });
 
 const queryC = `   
-select customer.customer_id, customer.first_name, customer.last_name, customer.email, address, city, district, country, postal_code, phone, 
-customer.last_update, json_objectagg(rental.rental_id, rental_date), return_date, film.title ,film.film_id, staff.staff_id from customer
-inner join address on customer.address_id = address.address_id
-inner join city on address.city_id = city.city_id
-inner join country on city.country_id = country.country_id
-inner join rental on customer.customer_id = rental.customer_id
-inner join inventory on rental.inventory_id = inventory.inventory_id
-inner join film on inventory.film_id = film.film_id
-inner join payment on customer.customer_id = payment.customer_id
-inner join store on customer.store_id = store.store_id
-inner join staff on store.store_id = staff.store_id
-where customer.customer_id = 1
-Group by customer.customer_id`;
+  select customer.customer_id, customer.first_name, customer.last_name, customer.email, address, city, district, country, postal_code, phone, 
+  customer.last_update, json_arrayagg(concat(rental.rental_id, '-', rental_date, '-', return_date, '-', film.title, '-', film.film_id)) AS Rentals,
+  json_arrayagg(concat(payment_id, '-', amount, '-', payment_date)) AS Payments
+  from customer
+  inner join address on customer.address_id = address.address_id
+  inner join city on address.city_id = city.city_id
+  inner join country on city.country_id = country.country_id
+  inner join rental on customer.customer_id = rental.customer_id
+  inner join inventory on rental.inventory_id = inventory.inventory_id
+  inner join film on inventory.film_id = film.film_id
+  inner join payment on customer.customer_id = payment.customer_id
+  inner join store on customer.store_id = store.store_id
+  inner join staff on store.store_id = staff.store_id
+  Group by customer.customer_id
+  limit 10`;
 
 const queryF = `
   select film.film_id, title, description, release_year, language.name AS Language, rental_duration, rental_rate, rating, length, replacement_cost, special_features, category.name AS Category, json_arrayagg(concat(actor.actor_id,'-', actor.first_name, '-', actor.last_name )) AS Actors from film
