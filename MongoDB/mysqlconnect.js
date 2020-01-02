@@ -23,18 +23,19 @@ inner join payment on customer.customer_id = payment.customer_id
 inner join store on customer.store_id = store.store_id
 inner join staff on store.store_id = staff.store_id
 Group by customer.customer_id
-limit 1`;
+limit 2`;
 
 const queryF = `
   select film.film_id, title, description, release_year, language.name AS Language, rental_duration, rental_rate, rating,
-  length, replacement_cost, special_features, category.name AS Category,
-  (group_concat(distinct actor.actor_id,'*', actor.first_name, '*', actor.last_name )) AS actors from film
+  length, replacement_cost, special_features, category.name AS Category, 
+  group_concat(distinct actor.actor_id,'*', actor.first_name, '*', actor.last_name ) AS actors from film
   inner join film_actor on film.film_id = film_actor.film_id
   inner join actor on film_actor.actor_id = actor.actor_id
   inner join language on film.language_id = language.language_id
   inner join film_category on film.film_id = film_category.film_id
   inner join category on film_category.category_id = category.category_id
-  GROUP by film_id`;
+  GROUP by film_id
+  limit 2`;
 
 const queryS = `
   select staff.first_name , staff.last_name, manager_staff_id, address, city, country, postal_code, phone,
