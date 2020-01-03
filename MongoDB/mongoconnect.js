@@ -3,16 +3,7 @@ var url = "mongodb://localhost:27017/Sakila"
 const fs = require('fs')
 
 MongoClient.connect(url, function(err, db) {
-    /*
-  if (err) throw err;
-  var dbo = db.db("Sakila");
-  var myobj = { name: "AAA"};
-  dbo.collection("customers").insertOne(myobj, function(err, res) {
-    if (err) throw err;
-    console.log("1 document inserted");
-    db.close();
-  });
-  */
+    
 let rawdataCust = fs.readFileSync('customers.json');
 let jsoncontent = JSON.parse(rawdataCust);
 
@@ -28,7 +19,8 @@ jsoncontent.forEach(element => {
   let postal_code = (element.postal_code)
   let phone = (element.phone)
   let last_update = (element.last_update)
-  console.log(customer_id +"..."+ first_name)
+  let staff_id = (element.staff_id)
+  console.log(customer_id +"..."+ first_name +  " - " + staff_id)
 
   console.log("-------------------------RENTAL-----------------------\n")
 
@@ -53,6 +45,8 @@ jsoncontent.forEach(element => {
   payment.forEach(element => {
     let payment1 = element.split("*")
     console.log(payment1[0])
+    console.log(payment1[1])
+    console.log(payment1[2])
   })
 
 
@@ -77,14 +71,72 @@ console.log("*********************STORES***********************\n")
 
 
 
+  if (err) throw err;
+  var dbo = db.db("Sakila");
+  
+  
 let rawdataSt = fs.readFileSync('Store.json');
 let contentstore = JSON.parse(rawdataSt);
 
 contentstore.forEach(element => {
-let first_name = (element.first_name)
-console.log(first_name)
+  let first_name = (element.first_name)
+  let last_name = (element.last_name)
+  let manager_staff_id = (element.manager_staff_id)
+  let address = (element.address)
+  let city = (element.city)
+  let country = (element.country)
+  let postal_code = (element.postal_code)
+  let phone = (element.phone)
+
+  let inventorys = (element.inventory)
+  var inventory = inventorys.split(",")
+  
+  //var inv = '['
+  var inv
+
+  for(var j = 0; j < inventory.length; j++ ){
+    let inventory1 = inventory[j].split("*")
+
+    inv += '{_id : ' + inventory1[0]+ ', filme_id : '+ inventory1[1] + ', filme_title : ' + inventory1[2] +'} ,'
+  
+
+  }
+  /*
+  for(var j = 0; j < inventory.length; j++ ){
+      
+    inv += '"'  
+    let inventory1 = inventory[j].split("*")
+    
+    for(var i = 0; i < inventory1.length; i++ ){
+      inv += inventory1[i]
+      if(i< inventory1.length -1 ){
+        inv += ","
+      }
+    } 
+
+    if(j< inventory.length -1 ){
+      inv += '",'
+    }
+    else{
+      inv +='"'
+    }
+  }
+  */
+  //inv += ']'
+  console.log(inv)
+
+  var myobj = { "Manager First Name": first_name , "Manager Last Name" : last_name,
+   "Manager Id": manager_staff_id, "Address" : address, "City": city,  "Country": country,
+    "Postal Code": postal_code, "Phone": phone, Inventory: [inv]
+  };
+  dbo.collection("stores").insertOne(myobj, function(err, res) {
+    if (err) throw err;
+    console.log("1 document inserted");
+    db.close();
+  });
 
 })
+  
 
 
 /*
