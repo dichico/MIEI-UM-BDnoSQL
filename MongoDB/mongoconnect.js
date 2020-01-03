@@ -3,6 +3,9 @@ var url = "mongodb://localhost:27017/Sakila"
 const fs = require('fs')
 
 MongoClient.connect(url, function(err, db) {
+  
+  if (err) throw err;
+  var dbo = db.db("Sakila");
     
 let rawdataCust = fs.readFileSync('customers.json');
 let jsoncontent = JSON.parse(rawdataCust);
@@ -62,18 +65,56 @@ let contentfilm = JSON.parse(rawdataFi);
 
 contentfilm.forEach(element => {
 let film_id = (element.film_id)
-console.log(film_id)
+let film_title = (element.title)
+let film_desc = (element.description)
+let release_year = (element.release_year)
+let language = (element.Language)
+let rental_dur = (element.rental_duration)
+let rental_rate = (element.rental_rate)
+let rating = (element.rating)
+let length = (element.length)
+let replac_cost = (element.replacement_cost)
+let special_feat = (element.special_features)
+let category = (element.Category)
+
+var myob = { "_id": film_id , "Title" : film_title,
+   "Description": film_desc, "Release year" : release_year, "Language": language,  "Rental Duration": rental_dur,
+    "Rental Rate": rental_rate, "Rating": rating, "Length": length, "Replacement Cost": replac_cost, 
+    "Special Features": special_feat, "Category": category , Actors: []
+  };
+  dbo.collection("films").insertOne(myob, function(err, res) {
+    if (err) throw err;
+    console.log("Filme inserido");
+    db.close();
+  });
+
+
 
 })
 
+contentfilm.forEach(element => {
+  let film_id = (element.film_id)
+  
+  let actors = (element.actors)
+  var actor = actors.split(",")
+  for(var j = 0; j < actor.length; j++ ){
+    let actor1 = actor[j].split("*")
+
+    dbo.collection("films").update( {"_id" : film_id}, {$push: {Actors: {$each: [{"id": actor1[0] , "First Name": actor1[1], "Last Name": actor1[2]}]}}}, function(err, res) {
+      if (err) throw err;
+      console.log("Actor inserido");
+      db.close();
+    });
+  }
+  })
 
 console.log("*********************STORES***********************\n")
 
 
 
-  if (err) throw err;
-  var dbo = db.db("Sakila");
   
+//--------------------------INSERÇAO DA STORE--------------------------//
+
   
 let rawdataSt = fs.readFileSync('Store.json');
 let contentstore = JSON.parse(rawdataSt);
@@ -88,46 +129,10 @@ contentstore.forEach(element => {
   let postal_code = (element.postal_code)
   let phone = (element.phone)
 
-  let inventorys = (element.inventory)
-  var inventory = inventorys.split(",")
-  
-  //var inv = '['
-  var inv
-
-  for(var j = 0; j < inventory.length; j++ ){
-    let inventory1 = inventory[j].split("*")
-
-    inv += '{_id : ' + inventory1[0]+ ', filme_id : '+ inventory1[1] + ', filme_title : ' + inventory1[2] +'} ,'
-  
-
-  }
-  /*
-  for(var j = 0; j < inventory.length; j++ ){
-      
-    inv += '"'  
-    let inventory1 = inventory[j].split("*")
-    
-    for(var i = 0; i < inventory1.length; i++ ){
-      inv += inventory1[i]
-      if(i< inventory1.length -1 ){
-        inv += ","
-      }
-    } 
-
-    if(j< inventory.length -1 ){
-      inv += '",'
-    }
-    else{
-      inv +='"'
-    }
-  }
-  */
-  //inv += ']'
-  console.log(inv)
 
   var myobj = { "Manager First Name": first_name , "Manager Last Name" : last_name,
    "Manager Id": manager_staff_id, "Address" : address, "City": city,  "Country": country,
-    "Postal Code": postal_code, "Phone": phone, Inventory: [inv]
+    "Postal Code": postal_code, "Phone": phone, Inventory: []
   };
   dbo.collection("stores").insertOne(myobj, function(err, res) {
     if (err) throw err;
@@ -136,7 +141,24 @@ contentstore.forEach(element => {
   });
 
 })
+
+//--------------------------INSERÇAO DO INVENTORY--------------------------//
+  contentstore.forEach(element => {
+  let first_name = (element.first_name)
+  let last_name = (element.last_name)
   
+  let inventorys = (element.inventory)
+  var inventory = inventorys.split(",")
+  for(var j = 0; j < inventory.length; j++ ){
+    let inventory1 = inventory[j].split("*")
+
+    dbo.collection("stores").update( {"Manager First Name" : first_name}, {$push: {Inventory: {$each: [{"id": inventory1[0] , "Film Id": inventory1[1], "Film Title": inventory1[2]}]}}}, function(err, res) {
+      if (err) throw err;
+      console.log("1 document inserted");
+      db.close();
+    });
+  }
+  })
 
 
 /*
