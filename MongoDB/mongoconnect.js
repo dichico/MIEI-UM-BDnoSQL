@@ -25,35 +25,53 @@ jsoncontent.forEach(element => {
   let staff_id = (element.staff_id)
   console.log(customer_id +"..."+ first_name +  " - " + staff_id)
 
-  console.log("-------------------------RENTAL-----------------------\n")
-
-  let rentals = (element.rentals)
-  var rental = rentals.split(",")
-  
-  rental.forEach(element => {
-      let rental1 = element.split("*")
-      console.log(rental1[0])
-      console.log(rental1[1])
-      console.log(rental1[2])
-      console.log(rental1[3])
-      console.log(rental1[4])
-
-  })
-
-  console.log("-------------------------PAYMENTS-----------------------\n")
-
-  let payments = (element.payments)
-  var payment = payments.split(",")
-
-  payment.forEach(element => {
-    let payment1 = element.split("*")
-    console.log(payment1[0])
-    console.log(payment1[1])
-    console.log(payment1[2])
-  })
-
+  var myo = { "_id": customer_id , "First name" : first_name, "Last Name": last_name, "Email": email,
+   "Address": address, "City": city , "District": district,  "Country": country,
+    "Postal Code": postal_code, "Phone": phone, "Last Update": last_update, Rentals: [], "Staff Id": staff_id
+  };
+  dbo.collection("customers").insertOne(myo, function(err, res) {
+    if (err) throw err;
+    console.log("Customer inserido");
+    db.close();
+  });
 
 })
+
+
+//-------------------------RENTAL-----------------------//
+
+jsoncontent.forEach(element => {
+  let customer_id = (element.customer_id)
+  
+  let rentals = (element.rentals)
+  var rental = rentals.split(",")
+  for(var j = 0; j < rental.length; j++ ){
+    let rental1 = rental[j].split("*")
+
+    dbo.collection("customers").update( {"_id" : customer_id}, {$push: {Rentals: {$each: [
+      {"_id": rental1[0] , "Rental date": rental1[1], "Return date": rental1[2] , "Film title": rental1[3], 
+       "Film id": rental1[4], Payment : []
+      }]}}}, function(err, res) {
+      if (err) throw err;
+      console.log("Rental inserido");
+      db.close();
+    });
+  }
+  })
+
+console.log("-------------------------PAYMENTS-----------------------\n")
+/*
+let payments = (element.payments)
+var payment = payments.split(",")
+
+payment.forEach(element => {
+  let payment1 = element.split("*")
+  console.log(payment1[0])
+  console.log(payment1[1])
+  console.log(payment1[2])
+  
+})
+*/
 
 
 console.log("*********************FILMES***********************\n")
@@ -160,51 +178,5 @@ contentstore.forEach(element => {
   }
   })
 
-
-/*
-
-
-let customer_id = (jsoncontent.customer_id)
-let first_name = (jsoncontent.first_name)
-let last_name = (jsoncontent.last_name)
-let email = (jsoncontent.email)
-let address = (jsoncontent.address)
-let city = (jsoncontent.city)
-let district = (jsoncontent.district)
-let country = (jsoncontent.country)
-let postal_code = (jsoncontent.postal_code)
-let phone = (jsoncontent.phone)
-let last_update = (jsoncontent.last_update)
-
-
-//-----------------------------Rentals-----------------------------//
-let rentals = (jsoncontent.rentals)
-var rental = rentals.split(",")
-
-rental.forEach(element => {
-    let rental1 = element.split("*")
-    console.log(rental1[0])
-})
-//-----------------------------Rentals-----------------------------//
-
-//-----------------------------Payments-----------------------------//
-
-let payments = (jsoncontent.payments)
-var payment = payments.split(",")
-
-payment.forEach(element => {
-  let payment1 = element.split("*")
-  console.log(payment1[0])
-})
-
-//-----------------------------Payments-----------------------------//
-
-let rawdataFi = fs.readFileSync('films.json');
-let contentfilm = JSON.parse(rawdataFi);
-
-let film_id = (contentfilm.film_id)
-
-console.log(film_id)
-*/
 
 });
