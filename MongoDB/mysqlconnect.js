@@ -11,7 +11,7 @@ var con = mysql.createConnection({
 const queryC = `   
 select customer.customer_id, customer.first_name, customer.last_name, customer.email, address, city, district, country, postal_code, phone, 
 customer.last_update, group_concat(distinct rental.rental_id, '*', rental_date, '*', return_date, '*', film.title, '*', film.film_id) AS rentals,
-group_concat(distinct payment_id, '*', amount, '*', payment_date) AS payments
+group_concat(distinct payment_id, '*', amount, '*', payment_date) AS payments, staff.staff_id
 from customer
 inner join address on customer.address_id = address.address_id
 inner join city on address.city_id = city.city_id
@@ -23,7 +23,7 @@ inner join payment on customer.customer_id = payment.customer_id
 inner join store on customer.store_id = store.store_id
 inner join staff on store.store_id = staff.store_id
 Group by customer.customer_id
-limit 2`;
+limit 200`;
 
 const queryF = `
   select film.film_id, title, description, release_year, language.name AS Language, rental_duration, rental_rate, rating,
@@ -35,14 +35,14 @@ const queryF = `
   inner join film_category on film.film_id = film_category.film_id
   inner join category on film_category.category_id = category.category_id
   GROUP by film_id
-  limit 2`;
+  limit 200`;
 
 const queryS = `
   select staff.first_name , staff.last_name, manager_staff_id, address, city, country, postal_code, phone,
   (group_concat(distinct film.film_id, '*', film.title, '*', film.rental_rate)) AS inventory
   from  store 
   inner join staff on store.manager_staff_id = staff.staff_id
-  inner join address on store.address_id = address.address_id
+  inner join address on staff.address_id = address.address_id
   inner join city on address.city_id = city.city_id
   inner join country on city.country_id = country.country_id
   inner join inventory on store.store_id = inventory.store_id

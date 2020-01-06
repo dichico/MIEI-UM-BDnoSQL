@@ -48,30 +48,23 @@ jsoncontent.forEach(element => {
   for(var j = 0; j < rental.length; j++ ){
     let rental1 = rental[j].split("*")
 
-    dbo.collection("customers").update( {"_id" : customer_id}, {$push: {Rentals: {$each: [
-      {"_id": rental1[0] , "Rental date": rental1[1], "Return date": rental1[2] , "Film title": rental1[3], 
-       "Film id": rental1[4], Payment : []
-      }]}}}, function(err, res) {
-      if (err) throw err;
-      console.log("Rental inserido");
-      db.close();
-    });
+    let payments = (element.rentals)
+    var payment = payments.split(",")
+    for(var j = 0; j < payment.length; j++ ){
+      let payment1 = payment[j].split("*")
+      dbo.collection("customers").update( {"_id" : customer_id}, {$push: {Rentals: {$each: [
+        {"Rental id": rental1[0] , "Rental date": rental1[1], "Return date": rental1[2] , "Film title": rental1[3], 
+        "Film id": rental1[4], Payments : [{"id": payment1[0], "Amount": payment1[1], "Date":payment1[2]}]
+        }]}}}, function(err, res) {
+        if (err) throw err;
+        console.log("Rental inserido");
+        db.close();
+      });
+    }
   }
   })
 
-console.log("-------------------------PAYMENTS-----------------------\n")
-/*
-let payments = (element.payments)
-var payment = payments.split(",")
 
-payment.forEach(element => {
-  let payment1 = element.split("*")
-  console.log(payment1[0])
-  console.log(payment1[1])
-  console.log(payment1[2])
-  
-})
-*/
 
 
 console.log("*********************FILMES***********************\n")
