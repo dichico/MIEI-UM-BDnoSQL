@@ -39,7 +39,8 @@ MongoClient.connect(url, function(err, db) {
       "Postal Code": PostalCode, 
       "Phone": Phone, 
       "Last Update": LastUpdate, 
-      "Rentals": [], 
+      "Rentals": [],
+      "Payments": [], 
       "ID Staff": idStaff
     };
 
@@ -67,10 +68,29 @@ MongoClient.connect(url, function(err, db) {
         "Return Date": infosRental[2], 
         "Film Title": infosRental[3], 
         "ID Film": infosRental[4], 
-        "Payments": []
       }]}}}, function(err, res) {
         if (err) throw err;
         console.log("Rental Inserido.");
+        db.close();
+      });
+
+    }
+    
+    let payments = (element.Payments)
+    var payment = payments.split(",")
+
+    for(var i = 0; i < payment.length; i++) {
+
+      let infosPayments = payment[i].split("//");
+
+      dbo.collection("customers").updateOne({"ID Costumer": idCostumer}, {$push : {Payments: {$each : [{
+        "ID Rental": infosPayments[0] , 
+        "ID Payment": infosPayments[1], 
+        "Amount": infosPayments[2], 
+        "Payment Date": infosPayments[3], 
+      }]}}}, function(err, res) {
+        if (err) throw err;
+        console.log("Payment Inserido.");
         db.close();
       });
 
@@ -226,5 +246,5 @@ MongoClient.connect(url, function(err, db) {
 
     }
   })
-  
+
 });
