@@ -1,3 +1,0 @@
--------Customers------- 
-
-insert(1,'MARY','SMITH','MARY.SMITH@sakilacustomer.org',)
