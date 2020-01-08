@@ -8,28 +8,28 @@ MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   var dbo = db.db("SAKILA");
     
-  console.log("Data Costumers.\n")
+  console.log("Data Costumers.\n");
 
   let dataCostumers = fs.readFileSync('customers.json');
   let dataJSONCostumers = JSON.parse(dataCostumers);
 
   dataJSONCostumers.forEach(element => {
-    let idCostumer = (element.idCostumer)
-    let FirstName = (element.FirstName)
-    let LastName = (element.LastName)
-    let Email = (element.Email)
-    let Address = (element.Address)
-    let City = (element.City)
-    let District = (element.District)
-    let Country = (element.Country)
-    let PostalCode = (element.PostalCode)
-    let Phone = (element.Phone)
-    let LastUpdate = (element.LastUpdate)
-    let idStaff = (element.idStaff)
+    let idCostumer = (element.idCostumer);
+    let FirstName = (element.FirstName);
+    let LastName = (element.LastName);
+    let Email = (element.Email);
+    let Address = (element.Address);
+    let City = (element.City);
+    let District = (element.District);
+    let Country = (element.Country);
+    let PostalCode = (element.PostalCode);
+    let Phone = (element.Phone);
+    let LastUpdate = (element.LastUpdate);
+    let idStaff = (element.idStaff);
 
     var dadosCostumers = { 
-      "ID Costumer": idCostumer , 
-      "First Name" : FirstName, 
+      "ID Costumer": idCostumer, 
+      "First Name": FirstName, 
       "Last Name": LastName, 
       "Email": Email,
       "Address": Address, 
@@ -53,10 +53,10 @@ MongoClient.connect(url, function(err, db) {
   })
 
   dataJSONCostumers.forEach(element => {
-    let idCostumer = (element.idCostumer)
+    let idCostumer = (element.idCostumer);
     
-    let rentals = (element.Rentals)
-    var rental = rentals.split(",")
+    let rentals = (element.Rentals);
+    var rental = rentals.split(",");
 
     for(var i = 0; i < rental.length; i++) {
 
@@ -76,8 +76,8 @@ MongoClient.connect(url, function(err, db) {
 
     }
     
-    let payments = (element.Payments)
-    var payment = payments.split(",")
+    let payments = (element.Payments);
+    var payment = payments.split(",");
 
     for(var i = 0; i < payment.length; i++) {
 
@@ -97,24 +97,24 @@ MongoClient.connect(url, function(err, db) {
     }
   })
 
-  console.log("Data Films.\n")
+  console.log("Data Films.\n");
 
   let dataFilms = fs.readFileSync('films.json');
   let dataJSONFilms = JSON.parse(dataFilms);
 
   dataJSONFilms.forEach(element => {
-    let idFilm = (element.film_id)
-    let Title = (element.Title)
-    let Description = (element.Description)
-    let ReleaseYear = (element.ReleaseYear)
-    let Language = (element.Language)
-    let RentalDuration = (element.RentalDuration)
-    let RentalRate = (element.RentalRate)
-    let Rating = (element.Rating)
-    let Length = (element.Length)
-    let ReplacementCost = (element.ReplacementCost)
-    let SpecialFeatures = (element.SpecialFeatures)
-    let Category = (element.Category)
+    let idFilm = (element.film_id);
+    let Title = (element.Title);
+    let Description = (element.Description);
+    let ReleaseYear = (element.ReleaseYear);
+    let Language = (element.Language);
+    let RentalDuration = (element.RentalDuration);
+    let RentalRate = (element.RentalRate);
+    let Rating = (element.Rating);
+    let Length = (element.Length);
+    let ReplacementCost = (element.ReplacementCost);
+    let SpecialFeatures = (element.SpecialFeatures);
+    let Category = (element.Category);
 
     var dadosFilms = { 
       "ID Film": idFilm, 
@@ -162,20 +162,20 @@ MongoClient.connect(url, function(err, db) {
     }
   })
 
-  console.log("Dados Stores.\n")
+  console.log("Dados Stores.\n");
 
   let dataStores = fs.readFileSync('stores.json');
   let dataJSONStores = JSON.parse(dataStores);
 
   dataJSONStores.forEach(element => {
-    let FirstName = (element.FirstName)
-    let LastName = (element.LastName)
-    let idManagerStaff = (element.idManagerStaff)
-    let Address = (element.Address)
-    let City = (element.City)
-    let Country = (element.Country)
-    let PostalCode = (element.PostalCode)
-    let Phone = (element.Phone)
+    let FirstName = (element.FirstName);
+    let LastName = (element.LastName);
+    let idManagerStaff = (element.idManagerStaff);
+    let Address = (element.Address);
+    let City = (element.City);
+    let Country = (element.Country);
+    let PostalCode = (element.PostalCode);
+    let Phone = (element.Phone);
 
     var dadosStores = { 
       "Manager First Name": FirstName,
