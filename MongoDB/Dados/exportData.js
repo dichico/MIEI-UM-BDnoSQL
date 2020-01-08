@@ -23,7 +23,7 @@ const queryCostumers = `
     postal_code AS PostalCode, 
     phone AS Phone, 
     customer.last_update AS LastUpdate, 
-    group_concat(distinct rental.rental_id, '//', rental_date, '//', return_date, '//', film.title,n'//', film.film_id) AS Rentals,
+    group_concat(distinct rental.rental_id, '//', rental_date, '//', return_date, '//', film.title, '//', film.film_id) AS Rentals,
     group_concat(distinct payment.rental_id, '//', payment_id, '//', amount, '//', payment_date) AS Payments, 
     staff.staff_id AS idStaff
   FROM customer
