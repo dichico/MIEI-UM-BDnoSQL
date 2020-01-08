@@ -95,33 +95,6 @@ MongoClient.connect(url, function(err, db) {
       });
 
     }
-
-/*     for(var j = 0; j < rental.length; j++ ){
-      let rental1 = rental[j].split("//")
-
-      console.log("RENTAL 0 - " + rental1[0])
-      console.log("RENTAL 1 - " + rental1[1])
-      console.log("RENTAL 2 - " + rental1[2] + "\n")
-
-  
-      let payments = (element.Payments)
-      var payment = payments.split(",")
-
-      console.log("PAGAMENTO 0 - " + payment[0])
-      console.log("PAGAMENTO 1 - " + payment[1])
-
-      for(var j = 0; j < payment.length; j++ ){
-        let payment1 = payment[j].split("//")
-        dbo.collection("customers").updateOne({"ID Costumer": customer_id}, {$push: {Rentals: {$each: [
-          {"Rental id": rental1[0] , "Rental date": rental1[1], "Return date": rental1[2] , "Film title": rental1[3], 
-          "Film id": rental1[4], Payments : [{"id": payment1[0], "Amount": payment1[1], "Date":payment1[2]}]
-          }]}}}, function(err, res) {
-          if (err) throw err;
-          //console.log("Rental inserido");
-          db.close();
-        });
-      }
-    } */
   })
 
   console.log("Data Films.\n")
@@ -164,7 +137,6 @@ MongoClient.connect(url, function(err, db) {
       console.log("Filme Inserido.");
       db.close();
     });
-
   })
 
   dataJSONFilms.forEach(element => {
@@ -220,7 +192,6 @@ MongoClient.connect(url, function(err, db) {
       console.log("Store Inserida.");
       db.close();
     });
-
   })
 
   dataJSONStores.forEach(element => {
