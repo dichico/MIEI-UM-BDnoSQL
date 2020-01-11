@@ -9,10 +9,10 @@ var connection = mysql.createConnection({
   database: "sakila"
 });
 
-// Query para retirar a Informações dos Costumers (Clientes).
-const queryCostumers = `   
+// Query para retirar a Informações dos Customers (Clientes).
+const queryCustomers = `   
   SELECT  
-    customer.customer_id AS idCostumer, 
+    customer.customer_id AS idCustomer, 
     customer.first_name AS FirstName, 
     customer.last_name As LastName,
     customer.email AS Email, 
@@ -94,41 +94,38 @@ const queryStores = `
 `;
 
 // Conexão e escrita dos dados no ficheiro JSON.
-connection.connect(function(err) {
+connection.connect(function(error) {
   
-  if (err) throw err;
-  
-  connection.query(queryCostumers, function (err, result, fields) {
-    
-    if (err) throw err;
-    //console.log(result);
+  if (error) throw error;
 
-    fs.writeFile("customers.json", JSON.stringify(result), function (err) {
-        if (err) throw err;
-        console.log("Ficheiros JSON dos Clientes salvo.");
-      });
+  connection.query(queryCustomers, function (error, data) {
+    
+    if (error) throw error;
+
+    fs.writeFile("files/customers.json", JSON.stringify(data), function (error) {
+        if (error) throw error;
+        console.log("Ficheiro JSON dos Clientes salvo.");
+    });
   });
 
-  connection.query(queryFilms, function (err, result, fields) {
+  connection.query(queryFilms, function (error, data) {
     
-    if (err) throw err;
-    //console.log(result);
+    if (error) throw error;
 
-    fs.writeFile("films.json", JSON.stringify(result), function (err) {
-        if (err) throw err;
-        console.log("Ficheiros JSON dos Filmes salvo.");
-      });
+    fs.writeFile("files/films.json", JSON.stringify(data), function (error) {
+        if (error) throw error;
+        console.log("Ficheiro JSON dos Filmes salvo.");
+    });
   });
 
-  connection.query(queryStores, function (err, result, fields) {
+  connection.query(queryStores, function (error, data) {
     
-    if (err) throw err;
-    //console.log(result);
+    if (error) throw error;
 
-    fs.writeFile("stores.json", JSON.stringify(result), function (err) {
-        if (err) throw err;
-        console.log("Ficheiros JSON das Lojas salvo.");
-      });
+    fs.writeFile("files/stores.json", JSON.stringify(data), function (error) {
+        if (error) throw error;
+        console.log("Ficheiro JSON das Lojas salvo.");
+    });
   });
 
   connection.end();
