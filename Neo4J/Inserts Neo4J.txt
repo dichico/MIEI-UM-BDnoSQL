@@ -1,4 +1,4 @@
-// Inserir Informações Gerais.
+// 1.Inserir Informações Gerais.
 
 // Informações dos Clientes
 LOAD CSV WITH HEADERS FROM 'file:///customers.csv' AS row
@@ -79,19 +79,19 @@ CREATE (l:Language {idLanguage: row.idLanguage})
 SET l.Name = row.Name 
 RETURN l;
 
-//Actor 
+// Informações dos Atores
 LOAD CSV WITH HEADERS FROM 'file:///actor.csv' AS row
 CREATE (a:Actor {idActor: row.idActor}) 
 SET a.FirstName= row.FirstName, 
 	a.LastName = row.LastName
 RETURN a;
 
-//Inventory 
+// Informações do Inventário
 LOAD CSV WITH HEADERS FROM 'file:///inventory.csv' AS row
 CREATE (i:Inventory {idInventory: row.idInventory}) 
 RETURN i;
 
-//Staff
+// Informações do Staff Lojas
 LOAD CSV WITH HEADERS FROM 'file:///staff.csv' AS row
 CREATE (s:Staff {idStaff: row.idStaff}) 
 SET s.FirstName = row.FirstName, 
@@ -104,7 +104,7 @@ SET s.FirstName = row.FirstName,
     s.Password = row.Password
 RETURN s;
 
-// Inserir Relações entre os Nodos.
+// 2. Inserir Relações entre os Nodos.
 
 // Relação Cidade-Country
 LOAD CSV WITH HEADERS FROM 'file:///city.csv' AS row
@@ -114,7 +114,7 @@ match (ctr:Country {idCountry: row.idCountry})
 create (c)-[:OF]->(ctr)
 RETURN c,ctr;
 
-//ADDRESS -> CITY
+// Relação Morada-País
 LOAD CSV WITH HEADERS FROM 'file:///address.csv' AS row
 match (a:Address {idAddress: row.idAddress})
 match (c:City {idCity: row.idCity})
@@ -122,7 +122,7 @@ match (c:City {idCity: row.idCity})
 create (a)-[:OF]->(c)
 RETURN a,c;
 
-//FILM - ACTOR 
+// Relação Filme-Ator
 LOAD CSV WITH HEADERS FROM 'file:///film_actor.csv' AS row
 match (f:Film {idFilm: row.idFilm})
 match (a:Actor {idActor: row.idActor})
@@ -130,7 +130,7 @@ match (a:Actor {idActor: row.idActor})
 create (a)-[:ACTED_IN]->(f)
 RETURN a,f;
 
-//FILM -> CATEGORY
+// Relação Filme-Categoria
 LOAD CSV WITH HEADERS FROM 'file:///film_category.csv' AS row
 match (f:Film {idFilm: row.idFilm})
 match (c:Category {idCategory: row.idCategory})
