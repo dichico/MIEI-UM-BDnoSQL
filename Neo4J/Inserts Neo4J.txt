@@ -1,0 +1,139 @@
+// 1.Inserir Informações Gerais.
+
+// Informações dos Clientes
+LOAD CSV WITH HEADERS FROM 'file:///customers.csv' AS row
+CREATE (c:Customer {idCustomer: row.idCustomer}) 
+SET c.FirstName = row.FirstName, 
+	c.LastName = row.LastName, 
+    c.email = row.Email, 
+    c.LastUpdate = row.LastUpdate 
+RETURN c;
+
+// Informações das Lojas
+LOAD CSV WITH HEADERS FROM 'file:///stores.csv' AS row
+CREATE (s:Store {idStore: row.idStore})
+RETURN s;
+
+// Informações dos Filmes
+LOAD CSV WITH HEADERS FROM 'file:///films.csv' AS row
+CREATE (film:Film {idFilm: row.film_id})
+SET film.Title = row.Title,
+	film.Description = row.Description,
+    film.ReleaseYear = row.ReleaseYear, 
+    film.RentalDuration = row.RentalDuration,
+    film.Language = row.Language,
+    film.RentalRate = row.RentalRate, 
+    film.Length = row.Length,
+    film.ReplacementCost = row.ReplacementCost,
+    film.Rating = row.Rating, 
+    film.SpecialFeatures = row.SpecialFeatures, 
+    film.Category = row.Category
+RETURN film;
+
+// Informações das Cidades
+LOAD CSV WITH HEADERS FROM 'file:///city.csv' AS row
+CREATE (c:City {idCity: row.idCity}) 
+SET c.City = row.City
+RETURN c;
+
+// Informações das Moradas 
+LOAD CSV WITH HEADERS FROM 'file:///address.csv' AS row
+CREATE (a:Address {idAddress: row.idAddress}) 
+SET a.Address = row.Address, 
+	a.Address2 = row.Address2, 
+    a.District = row.District, 
+    a.idCity = row.idCity, 
+    a.PostalCode = row.PostalCode, 
+    a.Phone = row.Phone
+RETURN a;
+
+// Informações dos Pagamentos
+LOAD CSV WITH HEADERS FROM 'file:///payment.csv' AS row
+CREATE (p:Payment {idPayment: row.idPayment}) 
+SET p.Amount = row.Amount, 
+	p.PaymentDate = row.PaymentDate
+RETURN p;
+
+// Informações dos Rentals
+LOAD CSV WITH HEADERS FROM 'file:///rental.csv' AS row
+CREATE (r:Rental {idRental: row.idRental}) 
+SET r.RentalDate = row.RentalDate, 
+	r.ReturnDate = row.ReturnDate
+RETURN r;
+
+// Informações dos Países
+LOAD CSV WITH HEADERS FROM 'file:///country.csv' AS row
+CREATE (c:Country {idCountry: row.idCountry}) 
+SET c.Country = row.Country
+RETURN c;
+
+// Informações das Categorias
+LOAD CSV WITH HEADERS FROM 'file:///category.csv' AS row
+CREATE (c:Category {idCategory: row.idCategory}) 
+SET c.Name = row.Name 
+RETURN c;
+
+// Informações das Linguagens
+LOAD CSV WITH HEADERS FROM 'file:///language.csv' AS row
+CREATE (l:Language {idLanguage: row.idLanguage}) 
+SET l.Name = row.Name 
+RETURN l;
+
+// Informações dos Atores
+LOAD CSV WITH HEADERS FROM 'file:///actor.csv' AS row
+CREATE (a:Actor {idActor: row.idActor}) 
+SET a.FirstName= row.FirstName, 
+	a.LastName = row.LastName
+RETURN a;
+
+// Informações do Inventário
+LOAD CSV WITH HEADERS FROM 'file:///inventory.csv' AS row
+CREATE (i:Inventory {idInventory: row.idInventory}) 
+RETURN i;
+
+// Informações do Staff Lojas
+LOAD CSV WITH HEADERS FROM 'file:///staff.csv' AS row
+CREATE (s:Staff {idStaff: row.idStaff}) 
+SET s.FirstName = row.FirstName, 
+	s.LastName = row.last_name, 
+    s.Email = row.email, 
+    s.idAddress = row.idAddress, 
+    s.idStore = row.idStore, 
+    s.Active = row.Active, 
+    s.Username = row.Username, 
+    s.Password = row.Password
+RETURN s;
+
+// 2. Inserir Relações entre os Nodos.
+
+// Relação Cidade-Country
+LOAD CSV WITH HEADERS FROM 'file:///city.csv' AS row
+match (c:City {idCity: row.idCity})
+match (ctr:Country {idCountry: row.idCountry})
+
+create (c)-[:OF]->(ctr)
+RETURN c,ctr;
+
+// Relação Morada-País
+LOAD CSV WITH HEADERS FROM 'file:///address.csv' AS row
+match (a:Address {idAddress: row.idAddress})
+match (c:City {idCity: row.idCity})
+
+create (a)-[:OF]->(c)
+RETURN a,c;
+
+// Relação Filme-Ator
+LOAD CSV WITH HEADERS FROM 'file:///film_actor.csv' AS row
+match (f:Film {idFilm: row.idFilm})
+match (a:Actor {idActor: row.idActor})
+
+create (a)-[:ACTED_IN]->(f)
+RETURN a,f;
+
+// Relação Filme-Categoria
+LOAD CSV WITH HEADERS FROM 'file:///film_category.csv' AS row
+match (f:Film {idFilm: row.idFilm})
+match (c:Category {idCategory: row.idCategory})
+
+create (f)-[:TYPE]->(c)
+RETURN f,c;
