@@ -1,3 +1,4 @@
+
 -- Parte do Customer Data
 -- Estrutura e criação da tabela country.
 CREATE TABLE country (
@@ -21,6 +22,7 @@ BEGIN
     -- aproveitar o trigger para adicionar o timestamp em modo ORACLE
     :NEW.last_update:=current_date;
 END;
+/
 
 -- Criação do trigger para atualização do "timestamp" caso exista update.
 CREATE OR REPLACE TRIGGER country_bu_trigger
@@ -28,6 +30,7 @@ BEFORE UPDATE ON country FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
+/
 
 -- Estrutura e criação da tabela city.
 CREATE TABLE city (
@@ -53,6 +56,7 @@ BEGIN
     -- aproveitar o trigger para adicionar o timestamp em modo ORACLE
     :NEW.last_update:=current_date;
 END;
+/
 
 -- Criação do trigger para atualização do "timestamp" caso exista update.
 CREATE OR REPLACE TRIGGER city_bu_trigger
@@ -60,16 +64,17 @@ BEFORE UPDATE ON city FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
+/
 
 -- Estrutura e criação da tabela address.
 CREATE TABLE address (
     address_id int NOT NULL,
     address VARCHAR(50) NOT NULL,
     address2 VARCHAR(50) DEFAULT NULL,
-    district VARCHAR(20) NOT NULL,
+    district VARCHAR(20),
     city_id INT NOT NULL,
     postal_code VARCHAR(10) DEFAULT NULL,
-    phone VARCHAR(20) NOT NULL,
+    phone VARCHAR(20),
     last_update DATE NOT NULL,
     CONSTRAINT address_PK PRIMARY KEY (address_id),
     CONSTRAINT address_city_FK FOREIGN KEY (city_id) REFERENCES city (city_id)
@@ -89,6 +94,7 @@ BEGIN
     -- criar o timestamp
     :NEW.last_update:=current_date;
 END;
+/
 
 -- Criação do trigger para atualização do "timestamp" caso exista update.
 CREATE OR REPLACE TRIGGER address_bu_trigger
@@ -96,6 +102,7 @@ BEFORE UPDATE ON address FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
+/
 
 -- Estrutura da tabela customer.
 CREATE TABLE customer (
@@ -130,6 +137,7 @@ BEGIN
     :NEW.last_update:=current_date;
     :NEW.create_date:=current_date;
 END;
+/
 
 -- Criação do trigger para atualização do "timestamp" caso exista update.
 CREATE OR REPLACE TRIGGER customer_bu_trigger
@@ -137,7 +145,7 @@ BEFORE UPDATE ON customer FOR EACH ROW
 BEGIN
     :NEW.last_update:=current_date;
 END;
-
+/
 
 -------
 -- Parte do Inventory
@@ -167,6 +175,7 @@ BEGIN
     -- aproveitar o trigger para adicionar o timestamp em modo ORACLE
     :NEW.last_update:=current_date;
 END;
+/
 
 -- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER actor_bu_trigger
@@ -174,6 +183,7 @@ BEFORE UPDATE ON actor FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
+/
 
 -- Estrutura para a tabela language
 CREATE TABLE language (
@@ -197,6 +207,7 @@ BEGIN
     -- aproveitar o trigger para adicionar o timestamp em modo ORACLE
     :NEW.last_update:=current_date;
 END;
+/
 
 -- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER language_bu_trigger
@@ -204,6 +215,7 @@ BEFORE UPDATE ON language FOR EACH ROW
 BEGIN
     :NEW.last_update:=current_date;
 END;
+/
 
 -- Estrutura da tabela category
 CREATE TABLE category (
@@ -227,6 +239,7 @@ BEGIN
     -- aproveitar o trigger para adicionar o timestamp em modo ORACLE
     :NEW.last_update:=current_date;
 END;
+/
 
 -- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER category_bu_trigger
@@ -234,19 +247,20 @@ BEFORE UPDATE ON category FOR EACH ROW
 BEGIN
     :NEW.last_update:=current_date;
 END;
+/
 
 -- Estrutura da tabela film.
 CREATE TABLE film (
     film_id int NOT NULL,
     title VARCHAR(255) NOT NULL,
     description CLOB DEFAULT NULL,
-    release_year VARCHAR(4) DEFAULT NULL,
+    release_year NUMBER(4) DEFAULT NULL,
     language_id SMALLINT NOT NULL,
     original_language_id SMALLINT DEFAULT NULL,
     rental_duration SMALLINT  DEFAULT 3 NOT NULL,
-    rental_rate DECIMAL(4,2) DEFAULT 4.99 NOT NULL,
+    rental_rate VARCHAR(10) DEFAULT '4.99' NOT NULL,
     length SMALLINT DEFAULT NULL,
-    replacement_cost DECIMAL(5,2) DEFAULT 19.99 NOT NULL,
+    replacement_cost VARCHAR(10) DEFAULT '19.99' NOT NULL,
     rating VARCHAR(10) DEFAULT 'G',
     special_features VARCHAR(100) DEFAULT NULL,
     last_update DATE NOT NULL,
@@ -278,14 +292,14 @@ BEGIN
   END IF;
   :NEW.last_update:=current_date;
 END;
-
+/
 -- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER film_bu_trigger
 BEFORE UPDATE ON film FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
-
+/
 -- Estrutura da tabela N:N da film_actor
 CREATE TABLE film_actor (
     actor_id INT NOT NULL,
@@ -302,7 +316,7 @@ BEFORE INSERT OR UPDATE ON film_actor FOR EACH ROW
 BEGIN
     :NEW.last_update:=current_date;
 END;
-
+/
 CREATE TABLE film_category (
     film_id INT NOT NULL,
     category_id SMALLINT NOT NULL,
@@ -318,7 +332,7 @@ BEFORE INSERT OR UPDATE ON film_category FOR EACH ROW
 BEGIN
     :NEW.last_update:=current_date;
 END;
-
+/
 CREATE TABLE film_text (
   film_id SMALLINT NOT NULL,
   title VARCHAR(255) NOT NULL,
@@ -333,7 +347,7 @@ BEGIN
     INSERT INTO film_text (film_id, title, description)
         VALUES (:NEW.film_id, :NEW.title, :NEW.description);
 END;
-
+/
 CREATE OR REPLACE TRIGGER upd_film
 AFTER UPDATE ON film FOR EACH ROW
 BEGIN
@@ -346,13 +360,13 @@ BEGIN
         WHERE film_id=:OLD.film_id;
     END IF;
 END;
-
+/
 CREATE OR REPLACE TRIGGER del_film
 AFTER DELETE ON film FOR EACH ROW
 BEGIN
     DELETE FROM film_text WHERE film_id = :OLD.film_id;
 END;
-
+/
 -- Estrutura da tabela inventory
 CREATE TABLE inventory (
     inventory_id INT NOT NULL,
@@ -376,14 +390,14 @@ BEGIN
         END IF;
     :NEW.last_update:=current_date;
 END;
-
+/
 -- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER inventory_bu_trigger
 BEFORE UPDATE ON inventory FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
-
+/
 -- Estrutura da tabela staff
 CREATE TABLE staff (
   staff_id SMALLINT NOT NULL,
@@ -414,14 +428,14 @@ BEGIN
   END IF;
   :NEW.last_update:=current_date;
 END;
-
+/
 -- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER staff_bu_trigger
 BEFORE UPDATE ON staff FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
-
+/
 -- Estrutura da tabela store
 CREATE TABLE store (
     store_id INT NOT NULL,
@@ -446,14 +460,14 @@ BEGIN
   END IF;
  :NEW.last_update:=current_date;
 END;
-
+/
 -- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER store_bu_trigger
 BEFORE UPDATE ON store FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
-
+/
 -- Estrutura da tabela payment
 CREATE TABLE payment (
     payment_id int NOT NULL,
@@ -479,16 +493,17 @@ BEGIN
    SELECT payment_sq.nextval INTO :NEW.payment_id
     FROM DUAL;
   END IF;
+ :NEW.payment_date:=current_date;
  :NEW.last_update:=current_date;
 END;
-
+/
 -- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER payment_bu_trigger
 BEFORE UPDATE ON payment FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
-
+/
 CREATE TABLE rental (
     rental_id INT NOT NULL,
     rental_date DATE NOT NULL,
@@ -519,13 +534,14 @@ BEGIN
   END IF;
  :NEW.last_update:=current_date;
 END;
-
+/
 -- Criação do trigger para atualizar o timestamp caso exista um update.
 CREATE OR REPLACE TRIGGER rental_bu_trigger
 BEFORE UPDATE ON rental FOR EACH ROW
 BEGIN
   :NEW.last_update:=current_date;
 END;
+/
 
 -- Colocar as chaves estrangeiras da tabela store e payment criadas agora.
 ALTER TABLE customer ADD CONSTRAINT fk_customer_store FOREIGN KEY (store_id) REFERENCES store (store_id);
@@ -653,7 +669,7 @@ BEGIN
       RETURN 1;
     END IF;
 END;
-
+/
 -- Function get_customer_balance ??
 /*CREATE OR REPLACE FUNCTION get_customer_balance(p_customer_id IN int, p_effective_date IN date)
 RETURN DECIMAL
@@ -700,7 +716,7 @@ BEGIN
 
     RETURN v_customer_id;
 END;
-
+/
 -- Procedure film_in_stock
 CREATE OR REPLACE PROCEDURE film_in_stock(p_film_id IN int, p_store_id IN int, p_film_count OUT int)
 IS
@@ -712,7 +728,7 @@ BEGIN
      AND store_id = p_store_id
      AND inventory_in_stock(inventory_id) = 1;
 END;
-
+/
 -- Procedure film_not_in_stock
 CREATE OR REPLACE PROCEDURE film_not_in_stock(p_film_id IN int, p_store_id IN int, p_film_count OUT int)
 IS
@@ -724,10 +740,7 @@ BEGIN
      AND store_id = p_store_id
      AND inventory_in_stock(inventory_id) = 0;
 END;
-
-
-
-
+/
 
 -- Procedure rewards_report ??
 /*
@@ -800,3 +813,4 @@ BEGIN
 EXCEPTION
     WHEN exit THEN null;
 END;*/
+COMMIT;
