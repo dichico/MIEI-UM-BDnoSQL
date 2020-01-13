@@ -24,7 +24,7 @@ db.getCollection('customers').find(
 
 ```sql
 MATCH (actor:Actor)
-RETURN actor.FirstName, actor.LastName
+RETURN actor.FirstName AS FirstName, actor.LastName AS LastName
 ```
 
 2. Lista dos Títulos dos Filme e respetivo Número de Atores que dele fazem parte.

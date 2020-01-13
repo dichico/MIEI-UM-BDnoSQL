@@ -20,13 +20,6 @@ SET address.Address = row.Address,
     address.Country = row.Country
 RETURN address;
 
-// Informações das Categorias
-LOAD CSV WITH HEADERS FROM 'file:///categories.csv' AS row
-CREATE (category:Category {idCategory: row.idCategory}) 
-SET category.Name = row.Name,
-    category.LastUpdate = row.LastUpdate
-RETURN category;
-
 // Informações dos Clientes
 LOAD CSV WITH HEADERS FROM 'file:///customers.csv' AS row
 CREATE (customer:Customer {idCustomer: row.idCustomer}) 
@@ -49,7 +42,9 @@ SET film.Title = row.Title,
     film.Length = row.Length,
     film.ReplacementCost = row.ReplacementCost,
     film.SpecialFeatures = row.SpecialFeatures, 
-    film.LastUpdate = row.LastUpdate
+    film.LastUpdate = row.LastUpdate,
+    film.Category = row.Category,
+    film.Language = row.Language
 RETURN film;
 
 // Informações do Inventário
@@ -57,13 +52,6 @@ LOAD CSV WITH HEADERS FROM 'file:///inventory.csv' AS row
 CREATE (inventory:Inventory {idInventory: row.idInventory}) 
 SET inventory.LastUpdate = row.LastUpdate
 RETURN inventory;
-
-// Informações das Linguagens
-LOAD CSV WITH HEADERS FROM 'file:///languages.csv' AS row
-CREATE (language:Language {idLanguage: row.idLanguage}) 
-SET language.Name = row.Name,
-    language.LastUpdate = row.LastUpdate
-RETURN language;
 
 // Informações dos Pagamentos
 LOAD CSV WITH HEADERS FROM 'file:///payments.csv' AS row
@@ -161,14 +149,6 @@ CREATE (rental)-[:PROCESSADO_POR]->(staff)
 CREATE (rental)-[:PERTENCE_AO]->(inventory) 
 RETURN rental,customer,staff,inventory;
 
-// Relação Filme-Linguagem
-LOAD CSV WITH HEADERS FROM 'file:///films.csv' AS row
-MATCH (film:Film {idFilm: row.idFilm}) 
-MATCH (language:Language {idLanguage: row.idLanguage}) 
-
-CREATE (film)-[:FALADO_EM]->(language) 
-RETURN film,language;
-
 // Relação Ator-Filme
 LOAD CSV WITH HEADERS FROM 'file:///filmsActors.csv' AS row
 MATCH (film:Film {idFilm: row.idFilm})
@@ -176,14 +156,6 @@ MATCH (actor:Actor {idActor: row.idActor})
 
 CREATE (actor)-[:ATUA_EM]->(film)
 RETURN actor,film;
-
-// Relação Filme-Categoria
-LOAD CSV WITH HEADERS FROM 'file:///filmsCategories.csv' AS row
-MATCH (film:Film {idFilm: row.idFilm})
-MATCH (category:Category {idCategory: row.idCategory})
-
-CREATE (film)-[:TIPO]->(category)
-RETURN film,category;
 
 // Relação Inventário-Filme
 // Relação Inventário-Loja
