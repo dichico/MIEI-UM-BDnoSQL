@@ -67,16 +67,7 @@ MongoClient.connect(url, function(err, db) {
         "Rental Date": infosRental[1], 
         "Return Date": infosRental[2],
         "ID Film": infosRental[3], 
-        "Film Title": infosRental[4], 
-        "Film Description": infosRental[5],
-        "Film Release Year": infosRental[6],
-        "Film Language": infosRental[7],
-        "Film Rental Duration": infosRental[8],
-        "Film Rental Rate": infosRental[9],
-        "Film Length": infosRental[10],
-        "Film Replacement Cost": infosRental[11],
-        "Film Rating": infosRental[12],
-        "Film Category": infosRental[13]
+        "Film Title": infosRental[4]
       }]}}}, function(err, res) {
         if (err) throw err;
         console.log("Rental Inserido.");
