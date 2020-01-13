@@ -187,14 +187,14 @@ ORDER BY CountRented DESC
 
 7. Total de cópias em Inventário do filme de nome "Connecticut Tramp".
 
-```mysql
+```sql
 SELECT film.title AS Title, count(*) TotalCopys
-FROM film 
+FROM film
 
 INNER JOIN inventory ON film.film_id = inventory.film_id
 
-WHERE film.title = "CONNECTICUT TRAMP"
-GROUP BY film.title
+WHERE film.title = 'CONNECTICUT TRAMP'
+GROUP BY film.title;
 ```
 
 ```sql
@@ -210,14 +210,14 @@ RETURN film.Title AS Title, count(film.idFilm) AS TotalCopys
 
 8. Lista dos Nomes (Primeiro e Último) dos Clientes e o total pago por cada um deles ao sistema em si, ordenados alfabeticamente consoante o Primeiro Nome.
 
-```mysql
+```sql
 SELECT customer.first_name AS FirstName, customer.last_name AS LastName, sum(payment.amount) AS TotalPago
-FROM payment 
+FROM payment
 
 INNER JOIN customer ON payment.customer_id = customer.customer_id
 
-GROUP BY FirstName, LastName
-ORDER BY FirstName
+GROUP BY customer.first_name, customer.last_name
+ORDER BY customer.FIRST_NAME;
 ```
 
 ```sql
@@ -233,15 +233,15 @@ ORDER BY FirstName
 
 9. Lista de todos os Filmes da Categoria "Action", bem como seu Ano de Lançamento e Rating.
 
-```mysql
+```sql
 SELECT title AS Title, release_year AS ReleaseYear, rating AS Rental
 FROM film
 
 INNER JOIN film_category ON film.film_id = film_category.film_id
 INNER JOIN category ON category.category_id = film_category.category_id
 
-WHERE category.name = "Action"
-ORDER BY Title
+WHERE category.name = 'Action'
+ORDER BY Title;
 ```
 
 ```sql
@@ -258,7 +258,7 @@ ORDER BY Title
 
 10. Lista das Cidades mais populares em termos de pagamentos por parte dos seus moradores.
 
-```mysql
+```sql
 SELECT country.country AS Name, count(payment.payment_id) AS TotalPayments
 FROM country
 
@@ -267,8 +267,8 @@ INNER JOIN address ON address.city_id = city.city_id
 INNER JOIN customer ON customer.address_id = address.address_id
 INNER JOIN payment ON payment.customer_id = customer.customer_id
 
-GROUP BY Country
-ORDER BY TotalPayments DESC
+GROUP BY country.country
+ORDER BY TotalPayments DESC;
 ```
 
 ```sql
