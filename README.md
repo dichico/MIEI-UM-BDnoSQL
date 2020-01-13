@@ -145,32 +145,6 @@ LIMIT 5
 
 ```sql
 
-db.customer.aggregate([
-    {
-        $lookup:
-        {
-            from: "films",
-            localField: "ID Film",
-            foreignField: "ID Film",
-            as: "film_info"
-        }
-    }
-
-
-])
-
-
-db.customers.find({},{"Payments.ID Rental":1, "Payments.Amount":1, "Rentals.ID Rental":1 , "Rentals.Film Category":1})
-
-db.customers.aggregate([{ $project : {equal : {$eq : ["$Rentals.ID Rental", "$Payments.ID Rental"] },}}, {$match : {equal : true}}]);
-
-db.customers.aggregate([{$lookup:{from: "films", localField: "Rentals.Film Title", foreignField: "Title", as: "film_info"}}])
-
-db.customers.aggregate([{ "$match": { "$expr": { "$eq": [ "$Rentals.ID Rental" , "$Payments.ID Rental" ] } } }])
-
-db.customers.aggregate([{$project: { A: 1, B: 1, commonToBoth: { $setIntersection: [ "$Rentals.ID Rental", "$Payments.ID Rental" ] }, _id: 0 } }])
-
-
 
 ```
 
@@ -226,7 +200,18 @@ GROUP BY film.title
 ```
 
 ```sql
-db.stores.aggregate([ {$unwind: "$Inventory" }, {$match: {"Inventory.Title":"CONNECTICUT TRAMP"}},{$group: {_id: "$Inventory" , numFilms:  {$sum: 1}}}])
+db.stores.aggregate(
+    [ 
+        {
+            $unwind: "$Inventory" 
+        }, 
+        {
+            $match: {"Inventory.Title":"CONNECTICUT TRAMP"}
+        },
+        {
+            $group: {_id: "$Inventory" , numFilms:  {$sum: 1}}
+        }
+    ])
 ```
 
 ```sql
@@ -249,7 +234,6 @@ ORDER BY FirstName
 ```
 
 ```sql
-db.customers.find({$sum:{$toInt:{"$Payments.Amount"}}},{_id:0, "First Name":1, "Last Name":1}).sort({"First Name" :1, "Last Name": 1})      
 
 db.customers.aggregate([{ "$project": {"First Name": 1,"TotalSpent": {"$sum": {$toInt: {"$Payments.Amount"}}}}])
 
