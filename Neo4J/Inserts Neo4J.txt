@@ -16,7 +16,8 @@ SET address.Address = row.Address,
     address.District = row.District, 
     address.PostalCode = row.PostalCode, 
     address.Phone = row.Phone,
-    address.idCity = row.idCity
+    address.City = row.City,
+    address.Country = row.Country
 RETURN address;
 
 // Informações das Categorias
@@ -25,20 +26,6 @@ CREATE (category:Category {idCategory: row.idCategory})
 SET category.Name = row.Name,
     category.LastUpdate = row.LastUpdate
 RETURN category;
-
-// Informações das Cidades
-LOAD CSV WITH HEADERS FROM 'file:///cities.csv' AS row
-CREATE (city:City {idCity: row.idCity}) 
-SET city.City = row.City,
-    city.LastUpdate = row.LastUpdate
-RETURN city;
-
-// Informações dos Países
-LOAD CSV WITH HEADERS FROM 'file:///countries.csv' AS row
-CREATE (country:Country {idCountry: row.idCountry}) 
-SET country.Country = row.Country,
-    country.LastUpdate = row.LastUpdate
-RETURN country;
 
 // Informações dos Clientes
 LOAD CSV WITH HEADERS FROM 'file:///customers.csv' AS row

@@ -8,13 +8,13 @@ MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   var dbo = db.db("SAKILA");
     
-  console.log("Data Costumers.\n");
+  console.log("Data Customers.\n");
 
-  let dataCostumers = fs.readFileSync('customers.json');
-  let dataJSONCostumers = JSON.parse(dataCostumers);
+  let dataCustomers = fs.readFileSync('files/customers.json');
+  let dataJSONCustomers = JSON.parse(dataCustomers);
 
-  dataJSONCostumers.forEach(element => {
-    let idCostumer = (element.idCostumer);
+  dataJSONCustomers.forEach(element => {
+    let idCustomer = (element.idCustomer);
     let FirstName = (element.FirstName);
     let LastName = (element.LastName);
     let Email = (element.Email);
@@ -27,8 +27,8 @@ MongoClient.connect(url, function(err, db) {
     let LastUpdate = (element.LastUpdate);
     let idStaff = (element.idStaff);
 
-    var dadosCostumers = { 
-      "ID Costumer": idCostumer, 
+    var dadosCustomers = { 
+      "ID Customer": idCustomer, 
       "First Name": FirstName, 
       "Last Name": LastName, 
       "Email": Email,
@@ -44,7 +44,7 @@ MongoClient.connect(url, function(err, db) {
       "ID Staff": idStaff
     };
 
-    dbo.collection("customers").insertOne(dadosCostumers, function(err, res) {
+    dbo.collection("customers").insertOne(dadosCustomers, function(err, res) {
       if (err) throw err;
       console.log("Customer Inserido.");
       db.close();
@@ -52,8 +52,8 @@ MongoClient.connect(url, function(err, db) {
 
   })
 
-  dataJSONCostumers.forEach(element => {
-    let idCostumer = (element.idCostumer);
+  dataJSONCustomers.forEach(element => {
+    let idCustomer = (element.idCustomer);
     
     let rentals = (element.Rentals);
     var rental = rentals.split(",");
@@ -62,12 +62,21 @@ MongoClient.connect(url, function(err, db) {
 
       let infosRental = rental[i].split("//");
 
-      dbo.collection("customers").updateOne({"ID Costumer": idCostumer}, {$push : {Rentals: {$each : [{
+      dbo.collection("customers").updateOne({"ID Customer": idCustomer}, {$push : {Rentals: {$each : [{
         "ID Rental": infosRental[0] , 
         "Rental Date": infosRental[1], 
-        "Return Date": infosRental[2], 
-        "Film Title": infosRental[3], 
-        "ID Film": infosRental[4], 
+        "Return Date": infosRental[2],
+        "ID Film": infosRental[3], 
+        "Film Title": infosRental[4], 
+        "Film Description": infosRental[5],
+        "Film Release Year": infosRental[6],
+        "Film Language": infosRental[7],
+        "Film Rental Duration": infosRental[8],
+        "Film Rental Rate": infosRental[9],
+        "Film Length": infosRental[10],
+        "Film Replacement Cost": infosRental[11],
+        "Film Rating": infosRental[12],
+        "Film Category": infosRental[13]
       }]}}}, function(err, res) {
         if (err) throw err;
         console.log("Rental Inserido.");
@@ -83,7 +92,7 @@ MongoClient.connect(url, function(err, db) {
 
       let infosPayments = payment[i].split("//");
 
-      dbo.collection("customers").updateOne({"ID Costumer": idCostumer}, {$push : {Payments: {$each : [{
+      dbo.collection("customers").updateOne({"ID Customer": idCustomer}, {$push : {Payments: {$each : [{
         "ID Rental": infosPayments[0] , 
         "ID Payment": infosPayments[1], 
         "Amount": infosPayments[2], 
@@ -99,7 +108,7 @@ MongoClient.connect(url, function(err, db) {
 
   console.log("Data Films.\n");
 
-  let dataFilms = fs.readFileSync('films.json');
+  let dataFilms = fs.readFileSync('files/films.json');
   let dataJSONFilms = JSON.parse(dataFilms);
 
   dataJSONFilms.forEach(element => {
@@ -164,7 +173,7 @@ MongoClient.connect(url, function(err, db) {
 
   console.log("Dados Stores.\n");
 
-  let dataStores = fs.readFileSync('stores.json');
+  let dataStores = fs.readFileSync('files/stores.json');
   let dataJSONStores = JSON.parse(dataStores);
 
   dataJSONStores.forEach(element => {
