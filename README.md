@@ -226,8 +226,7 @@ GROUP BY film.title
 ```
 
 ```sql
-db.stores.find({"Inventory.Title": "CONNECTICT TRAMP"})
-
+db.stores.aggregate([ {$unwind: "$Inventory" }, {$match: {"Inventory.Title":"CONNECTICUT TRAMP"}},{$group: {_id: "$Inventory" , numFilms:  {$sum: 1}}}])
 ```
 
 ```sql
