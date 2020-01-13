@@ -30,10 +30,12 @@ const queryAddress = `
     district AS District,
     postal_code AS PostalCode,
     phone AS Phone,
-    city AS City
+    city AS City,
+    country AS Country
   FROM  address
-  
+
 	INNER JOIN city ON address.city_id = city.city_id
+  INNER JOIN country ON country.country_id = city.country_id
 `;
 
 // Query para retirar a informação das Categorias.
@@ -43,27 +45,6 @@ const queryCategorys = `
     name AS Name, 
     last_update AS LastUpdate 
   FROM  category
-`;
-
-// Query para retirar a informação das Cidades.
-const queryCitys = `
-  SELECT 
-    city_id AS idCity, 
-    city AS City, 
-    country AS Country,
-    city.last_update AS LastUpdate 
-  FROM  city
-  
-	INNER JOIN country ON city.country_id = country.country_id
-`;
-
-// Query para retirar a informação dos Países.
-const queryCountrys = `
-  SELECT 
-    country_id AS idCountry,
-    country AS Country,
-    last_update AS LastUpdate 
-  FROM  country
 `;
 
 // Query para retirar a Informações dos Clientes.
@@ -236,36 +217,6 @@ connection.connect(function(error) {
     fs.writeFile("files/categories.csv", csv, function(error) {
       if (error) throw error;
       console.log("Ficheiro CSV das Categorias salvo.");
-    });
-  });
-
-  connection.query(queryCitys, function (error, data) {
-    
-    if (error) throw error;
-
-    const jsonData = JSON.parse(JSON.stringify(data));
-    const json2csvParser = new Json2csvParser({header: true});
-
-    const csv = json2csvParser.parse(jsonData);
-    
-    fs.writeFile("files/cities.csv", csv, function(error) {
-      if (error) throw error;
-      console.log("Ficheiro CSV das Cidades salvo.");
-    });
-  });
-
-  connection.query(queryCountrys, function (error, data) {
-    
-    if (error) throw error;
-
-    const jsonData = JSON.parse(JSON.stringify(data));
-    const json2csvParser = new Json2csvParser({header: true});
-
-    const csv = json2csvParser.parse(jsonData);
-    
-    fs.writeFile("files/countries.csv", csv, function(error) {
-      if (error) throw error;
-      console.log("Ficheiro CSV dos Países salvo.");
     });
   });
 

@@ -20,10 +20,12 @@ const queryCustomers = `
     city AS City, 
     district AS District, 
     country AS Country, 
-    postal_code AS PostalCode, 
+    postal_code AS PostalCode,
+    customer.active AS Active,
+    create_date AS CreateDate,
     phone AS Phone, 
     customer.last_update AS LastUpdate, 
-    group_concat(distinct rental.rental_id, '//', rental_date, '//', return_date, '//', film.title, '//', film.film_id) AS Rentals,
+    group_concat(distinct rental.rental_id, '//', rental_date, '//', return_date, '//', film.film_id, '//', film.title, '//', film.description, '//', film.release_year, '//', language.name, '//', film.rental_duration, '//', film.rental_rate, '//', film.length, '//', film.replacement_cost, '//', film.rating, '//', category.name) AS Rentals,
     group_concat(distinct payment.rental_id, '//', payment_id, '//', amount, '//', payment_date) AS Payments, 
     staff.staff_id AS idStaff
   FROM customer
@@ -34,12 +36,14 @@ const queryCustomers = `
   INNER JOIN rental ON customer.customer_id = rental.customer_id
   INNER JOIN inventory ON rental.inventory_id = inventory.inventory_id
   INNER JOIN film ON inventory.film_id = film.film_id
+  INNER JOIN film_category ON film.film_id = film_category.film_id
+  INNER JOIN category ON category.category_id = film_category.category_id
+  INNER JOIN language ON language.language_id = film.language_id
   INNER JOIN payment ON customer.customer_id = payment.customer_id
   INNER JOIN store ON customer.store_id = store.store_id
   INNER JOIN staff ON store.store_id = staff.store_id
 
   GROUP BY customer.customer_id
-  LIMIT 200
 `;
 
 // Query para retirar a informação dos Films (Filmes).
@@ -67,7 +71,6 @@ const queryFilms = `
   INNER JOIN category ON film_category.category_id = category.category_id
 
   GROUP BY film_id
-  LIMIT 200
 `;
 
 // Query para retirar a informação das Stores (lojas).
