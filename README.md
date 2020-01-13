@@ -140,12 +140,40 @@ INNER JOIN payment ON rental.rental_id = payment.rental_id
 
 GROUP BY category.name
 ORDER BY TotalVendas DESC
-LIMIT 
+LIMIT 5
 ```
 
 ```sql
 
+db.customer.aggregate([
+    {
+        $lookup:
+        {
+            from: "films",
+            localField: "ID Film",
+            foreignField: "ID Film",
+            as: "film_info"
+        }
+    }
+
+
+])
+
+
+db.customers.find({},{"Payments.ID Rental":1, "Payments.Amount":1, "Rentals.ID Rental":1 , "Rentals.Film Category":1})
+
+db.customers.aggregate([{ $project : {equal : {$eq : ["$Rentals.ID Rental", "$Payments.ID Rental"] },}}, {$match : {equal : true}}]);
+
+db.customers.aggregate([{$lookup:{from: "films", localField: "Rentals.Film Title", foreignField: "Title", as: "film_info"}}])
+
+db.customers.aggregate([{ "$match": { "$expr": { "$eq": [ "$Rentals.ID Rental" , "$Payments.ID Rental" ] } } }])
+
+db.customers.aggregate([{$project: { A: 1, B: 1, commonToBoth: { $setIntersection: [ "$Rentals.ID Rental", "$Payments.ID Rental" ] }, _id: 0 } }])
+
+
+
 ```
+
 
 ```sql
 MATCH (category:Category)<-[:TIPO]-(film:Film)<-[:CONTEM]-(inventory:Inventory)<-[:PERTENCE_AO]-(rental:Rental)<-[:ALUGADO]-(payment:Payment)
@@ -198,6 +226,7 @@ GROUP BY film.title
 ```
 
 ```sql
+db.stores.find({"Inventory.Title": "CONNECTICT TRAMP"})
 
 ```
 
@@ -221,6 +250,9 @@ ORDER BY FirstName
 ```
 
 ```sql
+db.customers.find({$sum:{$toInt:{"$Payments.Amount"}}},{_id:0, "First Name":1, "Last Name":1}).sort({"First Name" :1, "Last Name": 1})      
+
+db.customers.aggregate([{ "$project": {"First Name": 1,"TotalSpent": {"$sum": {$toInt: {"$Payments.Amount"}}}}])
 
 ```
 
@@ -245,7 +277,7 @@ ORDER BY Title
 ```
 
 ```sql
-
+db.films.find({Category: "Action"}, {"Title": 1,"Release year": 1 , Rating: 1, _id:0}) 
 ```
 
 ```sql
