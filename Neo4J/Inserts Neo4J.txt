@@ -111,7 +111,7 @@ CREATE (staff)-[:VIVE_EM]->(address)
 CREATE (staff)-[:TRABALHA_EM]->(store)
 RETURN staff,address,store;
 
-// Relação loja-Morada
+// Relação Loja-Morada
 // Relação Loja-Manager
 LOAD CSV WITH HEADERS FROM 'file:///stores.csv' AS row
 MATCH (store:Store {idStore: row.idStore})
@@ -134,7 +134,7 @@ CREATE (customer)-[:FREQUENTA]->(store)
 RETURN customer,address,store;
 
 // Relação Pagamento-Cliente
-// Relação Pagamento-Loja
+// Relação Pagamento-Staff
 // Relação Pagamento-Aluger
 LOAD CSV WITH HEADERS FROM 'file:///payments.csv' AS row
 MATCH (payment:Payment {idPayment: row.idPayment}) 
@@ -143,7 +143,7 @@ MATCH (staff:Staff {idStaff: row.idStaff})
 MATCH (rental:Rental {idRental: row.idRental})  
 
 CREATE (payment)-[:FEITO_POR]->(customer) 
-CREATE (payment)-[:PROCECADO_POR]->(staff) 
+CREATE (payment)-[:PROCESSADO_POR]->(staff) 
 CREATE (payment)-[:ALUGADO]->(rental) 
 RETURN payment,customer,staff,rental;
 
@@ -157,7 +157,7 @@ MATCH (customer:Customer {idCustomer: row.idCustomer})
 MATCH (staff:Staff {idStaff: row.idStaff}) 
 
 CREATE (rental)-[:FEITO_POR]->(customer) 
-CREATE (rental)-[:PROCECADO_POR]->(staff) 
+CREATE (rental)-[:PROCESSADO_POR]->(staff) 
 CREATE (rental)-[:PERTENCE_AO]->(inventory) 
 RETURN rental,customer,staff,inventory;
 
