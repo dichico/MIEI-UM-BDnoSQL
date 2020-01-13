@@ -4,7 +4,7 @@
 
 1. Nome e Sobrenome de todos os Atores existentes.
 
-```mysql
+```sql
 SELECT 
 	first_name AS FirstName,
     last_name AS LastName
@@ -62,7 +62,7 @@ RETURN film.Title AS Title, count(actor) AS NumberActors
 
 3. Lista dos Nomes (Primeiro e Último)  dos Atores que aparecem no Filme de nome "African Egg".
 
-```mysql
+```sql
 SELECT 
 	first_name AS FirstName,
     last_name AS LastName
@@ -71,7 +71,7 @@ FROM actor
 INNER JOIN film_actor ON film_actor.actor_id = actor.actor_id
 INNER JOIN film ON film.film_id = film_actor.film_id
 
-WHERE film.title = "African Egg"
+WHERE film.title = 'AFRICAN EGG';
 ```
 
 ```sql
@@ -93,7 +93,7 @@ RETURN actor.FirstName, actor.LastName
 
 4. Lista dos Nomes (Primeiro e Último) e Email dos Clientes originais da Argentina. 
 
-```mysql
+```sql
 SELECT 
 	customer.first_name AS FirstName, 
     customer.last_name AS LastName, 
@@ -128,8 +128,8 @@ Ao fazermos esta querie percebemos que ao colocar no Address logo o Country e a 
 
 5. Lista dos 5 primeiros Géneros/Categorias e sua respetiva Receita Bruta, por ordem descendente.
 
-```mysql
-SELECT category.name AS Category, sum(payment.amount) AS TotalVendas
+```sql
+SELECT category.name AS Category, SUM(payment.amount) AS TotalVendas
 FROM category
 
 INNER JOIN film_category ON category.category_id = film_category.category_id
@@ -140,7 +140,7 @@ INNER JOIN payment ON rental.rental_id = payment.rental_id
 
 GROUP BY category.name
 ORDER BY TotalVendas DESC
-LIMIT 
+FETCH FIRST 5 ROWS ONLY;
 ```
 
 ```sql
@@ -157,18 +157,18 @@ LIMIT 5
 
 6. Lista dos Filmes alugados com mais frequência, por ordem decrescente.
 
-```mysql
+```sql
 SELECT film.title AS Title, Rental.NumberRented AS CountRented
 FROM film
 
 INNER JOIN (
 	SELECT inventory.film_id AS idFilm, count(rental.rental_id) AS NumberRented
 	FROM rental
-    
+
 	INNER JOIN inventory ON rental.inventory_id = inventory.inventory_id
-    	
-	GROUP BY idFilm
-) AS Rental 
+
+	GROUP BY inventory.film_id
+) Rental
 ON film.film_id = Rental.idFilm
 
 ORDER BY Rental.NumberRented DESC
