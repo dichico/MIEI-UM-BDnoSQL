@@ -94,8 +94,6 @@ SELECT
   INNER JOIN country on city.country_id = country.country_id
   INNER JOIN inventory on store.store_id = inventory.store_id
   INNER JOIN film on inventory.film_id = film.film_id
-
- 
 `;
 
 // Conexão e escrita dos dados no ficheiro JSON.
