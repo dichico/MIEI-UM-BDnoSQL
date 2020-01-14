@@ -234,9 +234,7 @@ ORDER BY customer.FIRST_NAME;
 ```
 
 ```sql
-
 db.customers.aggregate([{ "$project": {"First Name": 1,"TotalSpent": {"$sum": {$toInt: {"$Payments.Amount"}}}}])
-
 ```
 
 ```sql
