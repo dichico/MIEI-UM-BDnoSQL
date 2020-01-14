@@ -67,16 +67,7 @@ MongoClient.connect(url, function(err, db) {
         "Rental Date": infosRental[1], 
         "Return Date": infosRental[2],
         "ID Film": infosRental[3], 
-        "Film Title": infosRental[4], 
-        "Film Description": infosRental[5],
-        "Film Release Year": infosRental[6],
-        "Film Language": infosRental[7],
-        "Film Rental Duration": infosRental[8],
-        "Film Rental Rate": infosRental[9],
-        "Film Length": infosRental[10],
-        "Film Replacement Cost": infosRental[11],
-        "Film Rating": infosRental[12],
-        "Film Category": infosRental[13]
+        "Film Title": infosRental[4]
       }]}}}, function(err, res) {
         if (err) throw err;
         console.log("Rental Inserido.");
@@ -175,56 +166,75 @@ MongoClient.connect(url, function(err, db) {
 
   let dataStores = fs.readFileSync('files/stores.json');
   let dataJSONStores = JSON.parse(dataStores);
-
-  dataJSONStores.forEach(element => {
-    let FirstName = (element.FirstName);
-    let LastName = (element.LastName);
-    let idManagerStaff = (element.idManagerStaff);
-    let Address = (element.Address);
-    let City = (element.City);
-    let Country = (element.Country);
-    let PostalCode = (element.PostalCode);
-    let Phone = (element.Phone);
+  
+    let FirstName = (dataJSONStores[0].FirstName);
+    let LastName = (dataJSONStores[0].LastName);
+    let idManagerStaff = (dataJSONStores[0].idManagerStaff);
+    let Address = (dataJSONStores[0].Address);
+    let City = (dataJSONStores[0].City);
+    let Country = (dataJSONStores[0].Country);
+    let PostalCode = (dataJSONStores[0].PostalCode);
+    let Phone = (dataJSONStores[0].Phone);
 
     var dadosStores = { 
-      "Manager First Name": FirstName,
-      "Manager Last Name": LastName,
-      "ID Manager": idManagerStaff, 
-      "Address": Address, 
-      "City": City,  
-      "Country": Country,
-      "Phone": Phone, 
-      "Inventory": []
+        "Manager First Name": FirstName,
+        "Manager Last Name": LastName,
+        "ID Manager": idManagerStaff, 
+        "Address": Address, 
+        "City": City,  
+        "Country": Country,
+        "Phone": Phone, 
+        "Inventory": []
     };
-    dbo.collection("stores").insertOne(dadosStores, function(err, res) {
+      dbo.collection("stores").insertOne(dadosStores, function(err, res) {
       if (err) throw err;
       console.log("Store Inserida.");
       db.close();
     });
-  })
+
+    FirstName = (dataJSONStores[4].FirstName);
+     LastName = (dataJSONStores[4].LastName);
+     idManagerStaff = (dataJSONStores[4].idManagerStaff);
+     Address = (dataJSONStores[4].Address);
+     City = (dataJSONStores[4].City);
+     Country = (dataJSONStores[4].Country);
+     PostalCode = (dataJSONStores[4].PostalCode);
+     Phone = (dataJSONStores[4].Phone);
+
+    dadosStores = { 
+        "Manager First Name": FirstName,
+        "Manager Last Name": LastName,
+        "ID Manager": idManagerStaff, 
+        "Address": Address, 
+        "City": City,  
+        "Country": Country,
+        "Phone": Phone, 
+        "Inventory": []
+    };
+      dbo.collection("stores").insertOne(dadosStores, function(err, res) {
+      if (err) throw err;
+      console.log("Store Inserida.");
+      db.close();
+    });
 
   dataJSONStores.forEach(element => {
     let FirstName = (element.FirstName);
     let LastName = (element.LastName);
+    let idFilm = (element.film_id);
+    let Title = (element.title)
+    let RentalRate = (element.rental_rate)
+
+    dbo.collection("stores").updateOne({"Manager First Name": FirstName}, {$push: {Inventory: {$each: [{
+        "ID Film": idFilm,
+        "Title":  Title,
+        "Rental Rate": RentalRate
+    }]}}}, function(err, res) {
+      if (err) throw err;
+      console.log("Inventory Inserido.");
+      db.close();
+    });
+
     
-    let inventorys = (element.Inventory);
-    var inventory = inventorys.split(",");
-
-    for(var j = 0; j < inventory.length; j++) {
-
-      let infosInventory = inventory[j].split("//");
-
-      dbo.collection("stores").updateOne({"Manager First Name": FirstName}, {$push: {Inventory: {$each: [{
-        "ID Film": infosInventory[0],
-        "Title": infosInventory[1], 
-        "Rental Rate": infosInventory[2]
-      }]}}}, function(err, res) {
-        if (err) throw err;
-        console.log("Inventory Inserido.");
-        db.close();
-      });
-
-    }
   })
 
 });

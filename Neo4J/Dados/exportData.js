@@ -38,15 +38,6 @@ const queryAddress = `
   INNER JOIN country ON country.country_id = city.country_id
 `;
 
-// Query para retirar a informação das Categorias.
-const queryCategorys = `
-  SELECT 
-    category_id AS idCategory, 
-    name AS Name, 
-    last_update AS LastUpdate 
-  FROM  category
-`;
-
 // Query para retirar a Informações dos Clientes.
 const queryCustomers = `   
   SELECT  
@@ -68,16 +59,22 @@ const queryFilms = `
     title AS Title, 
     description AS Description, 
     release_year AS ReleaseYear, 
-    language_id AS idLanguage,
     rental_duration AS RentalDuration, 
     rental_rate AS RentalRate, 
     rating AS Rating,
     length AS Length, 
     replacement_cost AS ReplacementCost, 
     special_features AS SpecialFeatures,
-    last_update AS LastUpdate
+    film.last_update AS LastUpdate,
+    language.name AS Language,
+    category.name AS Category
   FROM film
-  GROUP BY film_id
+  
+  INNER JOIN language ON film.language_id = language.language_id
+  INNER JOIN film_category ON film.film_id = film_category.film_id
+  INNER JOIN category ON film_category.category_id = category.category_id
+  
+  GROUP BY film.film_id
 `;
 
 // Query para retirar a informação da Relação dos Filmes e Atores.
@@ -87,15 +84,6 @@ const queryFilmsActors = `
     film_id AS idFilm,
     last_update AS LastUpdate
   FROM  film_actor
-`;
-
-// Query para retirar a informação da Relação dos Filmes e Categorias.
-const queryFilmsCategorys = `
-  SELECT 
-	  film_id AS idFilm,
-    category_id AS idCategory,
-    last_update AS LastUpdate
-  FROM  film_category
 `;
 
 // Query para retirar a informação do Inventário.
@@ -108,14 +96,7 @@ const queryInventory = `
   FROM  inventory
 `;
 
-const queryLanguages = `
-  SELECT 
-    language_id AS idLanguage,
-    name AS Name,
-    last_update AS LastUpdate
-  FROM  language
-`;
-
+// Query para retirar a informação dos Pagamentos.
 const queryPayments = `
   SELECT 
     payment_id AS idPayment,
@@ -128,6 +109,7 @@ const queryPayments = `
   FROM  payment
 `;
 
+// Query para retirar a informação dos Rentals.
 const queryRentals = `
   SELECT 
     rental_id AS idRental,
@@ -140,6 +122,7 @@ const queryRentals = `
   FROM  rental
 `;
 
+// Query para retirar a informação do Staff.
 const queryStaff = `
   SELECT 
     staff_id AS idStaff,
@@ -205,21 +188,6 @@ connection.connect(function(error) {
     });
   });
 
-  connection.query(queryCategorys, function (error, data) {
-    
-    if (error) throw error;
-
-    const jsonData = JSON.parse(JSON.stringify(data));
-    const json2csvParser = new Json2csvParser({header: true});
-
-    const csv = json2csvParser.parse(jsonData);
-    
-    fs.writeFile("files/categories.csv", csv, function(error) {
-      if (error) throw error;
-      console.log("Ficheiro CSV das Categorias salvo.");
-    });
-  });
-
   connection.query(queryCustomers, function (error, data) {
     
     if (error) throw error;
@@ -265,21 +233,6 @@ connection.connect(function(error) {
     });
   });
 
-  connection.query(queryFilmsCategorys, function (error, data) {
-    
-    if (error) throw error;
-
-    const jsonData = JSON.parse(JSON.stringify(data));
-    const json2csvParser = new Json2csvParser({header: true});
-
-    const csv = json2csvParser.parse(jsonData);
-    
-    fs.writeFile("files/filmsCategories.csv", csv, function(error) {
-      if (error) throw error;
-      console.log("Ficheiro CSV dos Filmes/Categorias salvo.");
-    });
-  });
-
   connection.query(queryInventory, function (error, data) {
     
     if (error) throw error;
@@ -292,21 +245,6 @@ connection.connect(function(error) {
     fs.writeFile("files/inventory.csv", csv, function(error) {
       if (error) throw error;
       console.log("Ficheiro CSV do Inventário salvo.");
-    });
-  });
-
-  connection.query(queryLanguages, function (error, data) {
-    
-    if (error) throw error;
-
-    const jsonData = JSON.parse(JSON.stringify(data));
-    const json2csvParser = new Json2csvParser({header: true});
-
-    const csv = json2csvParser.parse(jsonData);
-    
-    fs.writeFile("files/languages.csv", csv, function(error) {
-      if (error) throw error;
-      console.log("Ficheiro CSV das Linguagens salvo.");
     });
   });
 

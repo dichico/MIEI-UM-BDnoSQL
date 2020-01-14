@@ -24,7 +24,7 @@ db.getCollection('customers').find(
 
 ```sql
 MATCH (actor:Actor)
-RETURN actor.FirstName, actor.LastName
+RETURN actor.FirstName AS FirstName, actor.LastName AS LastName
 ```
 
 2. Lista dos Títulos dos Filme e respetivo Número de Atores que dele fazem parte.
@@ -145,7 +145,9 @@ FETCH FIRST 5 ROWS ONLY;
 
 ```sql
 
+
 ```
+
 
 ```sql
 MATCH (category:Category)<-[:TIPO]-(film:Film)<-[:CONTEM]-(inventory:Inventory)<-[:PERTENCE_AO]-(rental:Rental)<-[:ALUGADO]-(payment:Payment)
@@ -198,7 +200,18 @@ GROUP BY film.title;
 ```
 
 ```sql
-
+db.stores.aggregate(
+    [ 
+        {
+            $unwind: "$Inventory" 
+        }, 
+        {
+            $match: {"Inventory.Title":"CONNECTICUT TRAMP"}
+        },
+        {
+            $group: {_id: "$Inventory" , numFilms:  {$sum: 1}}
+        }
+    ])
 ```
 
 ```sql
@@ -221,6 +234,8 @@ ORDER BY customer.FIRST_NAME;
 ```
 
 ```sql
+
+db.customers.aggregate([{ "$project": {"First Name": 1,"TotalSpent": {"$sum": {$toInt: {"$Payments.Amount"}}}}])
 
 ```
 
@@ -245,7 +260,7 @@ ORDER BY Title;
 ```
 
 ```sql
-
+db.films.find({Category: "Action"}, {"Title": 1,"Release year": 1 , Rating: 1, _id:0}) 
 ```
 
 ```sql

@@ -5,7 +5,7 @@ var fs = require("fs");
 var connection = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "root",
+  password: "Uminho27!",
   database: "sakila"
 });
 
@@ -75,7 +75,7 @@ const queryFilms = `
 
 // Query para retirar a informação das Stores (lojas).
 const queryStores = `
-  SELECT 
+SELECT 
     staff.first_name AS FirstName, 
     staff.last_name AS LastName, 
     manager_staff_id AS idManagerStaff, 
@@ -83,7 +83,9 @@ const queryStores = `
     city AS City, 
     country AS Country, 
     phone AS Phone,
-    group_concat(distinct film.film_id, '//', film.title, '//', film.rental_rate) AS Inventory
+    inventory.film_id,
+    film.title,
+    film.rental_rate
   FROM  store
 
   INNER JOIN staff on store.manager_staff_id = staff.staff_id
@@ -93,7 +95,7 @@ const queryStores = `
   INNER JOIN inventory on store.store_id = inventory.store_id
   INNER JOIN film on inventory.film_id = film.film_id
 
-  GROUP BY store.store_id
+ 
 `;
 
 // Conexão e escrita dos dados no ficheiro JSON.
